@@ -1,0 +1,2 @@
+# lazylang
+prog1
