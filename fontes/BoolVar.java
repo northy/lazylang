@@ -31,7 +31,19 @@ public class BoolVar extends Var {
     }
 
     //métodos
-    protected static boolean intToBool(int i) {
+    public static boolean intToBool(int i) {
         return i==0 ? false : true;
+    }
+    public static int boolToInt(boolean b) {
+        return b ? 1 : 0;
+    }
+    @Override
+    public int compareTo(Var other) throws ArithmeticException {
+        if (other.getType().equals("bool")) {
+            return boolToInt((boolean)this.getData())-boolToInt((boolean)other.getData());
+        }
+        else {
+            throw new ArithmeticException("Uncompatible types for compareTo functions: " + this.getType() + " and " + other.getType());
+        }
     }
 }

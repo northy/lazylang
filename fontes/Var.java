@@ -23,4 +23,10 @@ public abstract class Var {
     public void print() {
         System.out.println("Variable name: " + this.getName() + " | Type: " + this.getType() + " | Content: " + this.getData());
     }
+    public boolean equals(Object other) {
+        return this.getData() == ((Var) other).getData();
+    }
+    public int compareTo(Var other) {
+        return 0;
+    }
 }
