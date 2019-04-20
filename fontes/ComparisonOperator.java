@@ -1,4 +1,4 @@
-public enum Operator {
+public enum ComparisonOperator {
     EQ, //EQUALS
     GT, //GREATER THAN
     LT, //LESSER THAN

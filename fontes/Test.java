@@ -4,6 +4,6 @@ class Test {
         Var b = new IntVar("b",4);
         a.print();
         b.print();
-        System.out.println(Expression.evaluate(a, Operator.NE, b));
+        System.out.println(Expression.evaluate(a, ComparisonOperator.NE, b));
     }
 }
