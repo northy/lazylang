@@ -47,21 +47,21 @@ public class DoubleVar extends Var {
     public boolean lAnd(Var other) throws OperatorException {
         if (other.getType().equals("bool")) {
             int tmpT = doubleToInt(this.getData());
-            return BoolVar.intToBool(tmpT)&&(boolean)other.getData();
+            return IntVar.intToBool(tmpT)&&(boolean)other.getData();
         }
         else if (other.getType().equals("int")) {
             int tmpT = doubleToInt(this.getData());
-            return BoolVar.intToBool(tmpT)&&BoolVar.intToBool((int)other.getData());
+            return IntVar.intToBool(tmpT)&&IntVar.intToBool((int)other.getData());
         }
         else if (other.getType().equals("double")) {
             int tmpT = doubleToInt(this.getData());
             int tmpO = doubleToInt((double)other.getData());
-            return BoolVar.intToBool(tmpT)&&BoolVar.intToBool(tmpO);
+            return IntVar.intToBool(tmpT)&&IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {
             int tmpT = doubleToInt(this.getData());
             int tmpO = FloatVar.floatToInt((float)other.getData());
-            return BoolVar.intToBool(tmpT)&&BoolVar.intToBool(tmpO);
+            return IntVar.intToBool(tmpT)&&IntVar.intToBool(tmpO);
         }
         else {
             throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
@@ -72,21 +72,21 @@ public class DoubleVar extends Var {
     public boolean lOr(Var other) throws OperatorException {
         if (other.getType().equals("bool")) {
             int tmpT = doubleToInt(this.getData());
-            return BoolVar.intToBool(tmpT)||(boolean)other.getData();
+            return IntVar.intToBool(tmpT)||(boolean)other.getData();
         }
         else if (other.getType().equals("int")) {
             int tmpT = doubleToInt(this.getData());
-            return BoolVar.intToBool(tmpT)||BoolVar.intToBool((int)other.getData());
+            return IntVar.intToBool(tmpT)||IntVar.intToBool((int)other.getData());
         }
         else if (other.getType().equals("double")) {
             int tmpT = doubleToInt(this.getData());
             int tmpO = doubleToInt((double)other.getData());
-            return BoolVar.intToBool(tmpT)||BoolVar.intToBool(tmpO);
+            return IntVar.intToBool(tmpT)||IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {
             int tmpT = doubleToInt(this.getData());
             int tmpO = FloatVar.floatToInt((float)other.getData());
-            return BoolVar.intToBool(tmpT)||BoolVar.intToBool(tmpO);
+            return IntVar.intToBool(tmpT)||IntVar.intToBool(tmpO);
         }
         else {
             throw new OperatorException("Uncompatible types for logical or function: " + this.getType() + " and " + other.getType());
@@ -96,7 +96,87 @@ public class DoubleVar extends Var {
     @Override
     public boolean lNot() {
         int tmpT = doubleToInt(this.getData());
-        return !(BoolVar.intToBool(tmpT));
+        return !(IntVar.intToBool(tmpT));
+    }
+
+    @Override
+    public Var add(Var other) throws OperatorException {
+        if (other.getType().equals("int")) {
+            return new DoubleVar("__tmp",(double)this.getData()+(double)(int)other.getData());
+        }
+        if (other.getType().equals("float")) {
+            return new DoubleVar("__tmp",(double)this.getData()+(double)(float)other.getData());
+        }
+        else if (other.getType().equals("double")) {
+            return new DoubleVar("__tmp",(double)this.getData()+(double)other.getData());
+        }
+        else {
+            throw new OperatorException("Uncompatible types for arithmetic add function: " + this.getType() + " and " + other.getType());
+        }
+    }
+
+    @Override
+    public Var sub(Var other) throws OperatorException {
+        if (other.getType().equals("int")) {
+            return new DoubleVar("__tmp",(double)this.getData()-(double)(int)other.getData());
+        }
+        if (other.getType().equals("float")) {
+            return new DoubleVar("__tmp",(double)this.getData()-(double)(float)other.getData());
+        }
+        else if (other.getType().equals("double")) {
+            return new DoubleVar("__tmp",(double)this.getData()-(double)other.getData());
+        }
+        else {
+            throw new OperatorException("Uncompatible types for arithmetic sub function: " + this.getType() + " and " + other.getType());
+        }
+    }
+
+    @Override
+    public Var mult(Var other) throws OperatorException {
+        if (other.getType().equals("int")) {
+            return new DoubleVar("__tmp",(double)this.getData()*(double)(int)other.getData());
+        }
+        if (other.getType().equals("float")) {
+            return new DoubleVar("__tmp",(double)this.getData()*(double)(float)other.getData());
+        }
+        else if (other.getType().equals("double")) {
+            return new DoubleVar("__tmp",(double)this.getData()*(double)other.getData());
+        }
+        else {
+            throw new OperatorException("Uncompatible types for arithmetic mult function: " + this.getType() + " and " + other.getType());
+        }
+    }
+
+    @Override
+    public Var div(Var other) throws OperatorException {
+        if (other.getType().equals("int")) {
+            return new DoubleVar("__tmp",(double)this.getData()/(double)(int)other.getData());
+        }
+        if (other.getType().equals("float")) {
+            return new DoubleVar("__tmp",(double)this.getData()/(double)(float)other.getData());
+        }
+        else if (other.getType().equals("double")) {
+            return new DoubleVar("__tmp",(double)this.getData()/(double)other.getData());
+        }
+        else {
+            throw new OperatorException("Uncompatible types for arithmetic div function: " + this.getType() + " and " + other.getType());
+        }
+    }
+
+    @Override
+    public Var mod(Var other) throws OperatorException {
+        if (other.getType().equals("int")) {
+            return new DoubleVar("__tmp",(double)this.getData()%(double)(int)other.getData());
+        }
+        if (other.getType().equals("float")) {
+            return new DoubleVar("__tmp",(double)this.getData()%(double)(float)other.getData());
+        }
+        else if (other.getType().equals("double")) {
+            return new DoubleVar("__tmp",(double)this.getData()%(double)other.getData());
+        }
+        else {
+            throw new OperatorException("Uncompatible types for arithmetic mod function: " + this.getType() + " and " + other.getType());
+        }
     }
 
     //métodos estáticos

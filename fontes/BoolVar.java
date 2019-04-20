@@ -15,7 +15,7 @@ public class BoolVar extends Var {
     public BoolVar(String name,int data) {
         this();
         this.setName(name);
-        this.setData(intToBool(data));
+        this.setData(IntVar.intToBool(data));
     }
 
     //getters
@@ -30,18 +30,16 @@ public class BoolVar extends Var {
     }
     
     public void setData(int d) {
-        this.data=intToBool(d);
+        this.data=IntVar.intToBool(d);
     }
 
-    //métodos
-    public static boolean intToBool(int i) {
-        return i==0 ? false : true;
-    }
+    //métodos estáticos
 
     public static int boolToInt(boolean b) {
         return b ? 1 : 0;
     }
 
+    //métodos
     @Override
     public int compareTo(Var other) throws ArithmeticException {
         if (other.getType().equals("bool")) {
@@ -58,15 +56,15 @@ public class BoolVar extends Var {
             return (boolean)this.getData()&&(boolean)other.getData();
         }
         else if (other.getType().equals("int")) {
-            return (boolean)this.getData()&&BoolVar.intToBool((int)other.getData());
+            return (boolean)this.getData()&&IntVar.intToBool((int)other.getData());
         }
         else if (other.getType().equals("double")) {
             int tmpO = DoubleVar.doubleToInt((double)other.getData());
-            return (boolean)this.getData()&&BoolVar.intToBool(tmpO);
+            return (boolean)this.getData()&&IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {
             int tmpO = FloatVar.floatToInt((float)other.getData());
-            return (boolean)this.getData()&&BoolVar.intToBool(tmpO);
+            return (boolean)this.getData()&&IntVar.intToBool(tmpO);
         }
         else {
             throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
@@ -79,15 +77,15 @@ public class BoolVar extends Var {
             return (boolean)this.getData()||(boolean)other.getData();
         }
         else if (other.getType().equals("int")) {
-            return (boolean)this.getData()||BoolVar.intToBool((int)other.getData());
+            return (boolean)this.getData()||IntVar.intToBool((int)other.getData());
         }
         else if (other.getType().equals("double")) {
             int tmpO = DoubleVar.doubleToInt((double)other.getData());
-            return (boolean)this.getData()||BoolVar.intToBool(tmpO);
+            return (boolean)this.getData()||IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {
             int tmpO = FloatVar.floatToInt((float)other.getData());
-            return (boolean)this.getData()||BoolVar.intToBool(tmpO);
+            return (boolean)this.getData()||IntVar.intToBool(tmpO);
         }
         else {
             throw new OperatorException("Uncompatible types for logical or function: " + this.getType() + " and " + other.getType());
