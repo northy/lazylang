@@ -12,10 +12,18 @@ public class BoolVar extends Var {
         this.setData(data);
     }
 
+    public BoolVar(boolean data) {
+        this("__tmp",data);
+    }
+
     public BoolVar(String name,int data) {
         this();
         this.setName(name);
         this.setData(IntVar.intToBool(data));
+    }
+
+    public BoolVar(int data) {
+        this("__tmp",data);
     }
 
     //getters
@@ -25,6 +33,22 @@ public class BoolVar extends Var {
     }
 
     //setters
+    @Override
+    public void setData(Object d) throws OperatorException {
+        try {
+            this.data=IntVar.intToBool(((Integer)d).intValue());
+            return;
+        }
+        catch (Exception e) {}
+        try {
+            this.data=(boolean)d;
+            return;
+        }
+        catch (Exception e) {
+            throw new OperatorException("Unable to cast value to variable",e);
+        }
+    }
+
     public void setData(boolean d) {
         this.data=d;
     }

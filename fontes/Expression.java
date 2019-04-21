@@ -63,4 +63,29 @@ public class Expression {
                 throw new OperatorException("Unexpected operator");
         }
     }
+
+    public static void evaluate(Var term1, AssignmentOperator op, Var term2) throws OperatorException {
+        switch (op) {
+            case ASSIGN :
+                term1.setData(term2.getData());
+                break;
+            case ADD_ASSIGN :
+                term1.setData(term1.add(term2).getData());
+                break;
+            case SUB_ASSIGN :
+                term1.setData(term1.sub(term2).getData());
+                break;
+            case MULT_ASSIGN :
+                term1.setData(term1.mult(term2).getData());
+                break;
+            case DIV_ASSIGN :
+                term1.setData(term1.div(term2).getData());
+                break;
+            case MOD_ASSIGN :
+                term1.setData(term1.mod(term2).getData());
+                break;
+            default :
+                throw new OperatorException("Unexpected operator");
+        }
+    }
 }

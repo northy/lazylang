@@ -18,6 +18,9 @@ public abstract class Var {
     public void setName(String name) {
         this.name=name;
     }
+    public void setData(Object d) {
+        this.data=d;
+    }
 
     //métodos
     public void print() {

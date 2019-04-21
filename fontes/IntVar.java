@@ -12,6 +12,10 @@ public class IntVar extends Var {
         this.setData(data);
     }
 
+    public IntVar(int data) {
+        this("__tmp",data);
+    }
+
     //getters
     @Override
 	public Integer getData() {
@@ -21,6 +25,16 @@ public class IntVar extends Var {
     //setters
     public void setData(int d) {
         this.data=d;
+    }
+
+    public void setData(Object d) throws OperatorException {
+        try {
+            this.data=(int)((Number) d).intValue();
+            return;
+        }
+        catch (Exception e) {
+            throw new OperatorException("Unable to cast value to variable",e);
+        }
     }
 
     //métodos

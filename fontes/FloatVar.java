@@ -12,6 +12,10 @@ public class FloatVar extends Var {
         this.setData(data);
     }
 
+    public FloatVar(float data) {
+        this("__tmp",data);
+    }
+
     //getters
     @Override
     public Float getData() {
@@ -21,6 +25,17 @@ public class FloatVar extends Var {
     //setters
     public void setData(float d) {
         this.data=d;
+    }
+
+    @Override
+    public void setData(Object d) throws OperatorException {
+        try {
+            this.data=(float)((Number) d).floatValue();
+            return;
+        }
+        catch (Exception e) {
+            throw new OperatorException("Unable to cast value to variable",e);
+        }
     }
 
     //métodos

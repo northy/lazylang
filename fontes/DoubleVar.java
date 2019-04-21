@@ -12,6 +12,10 @@ public class DoubleVar extends Var {
         this.setData(data);
     }
 
+    public DoubleVar(double data) {
+        this("__tmp",data);
+    }
+
     //getters 
     @Override
     public Double getData() {
@@ -21,6 +25,17 @@ public class DoubleVar extends Var {
     //setters
     public void setData(double d) {
         this.data=d;
+    }
+
+    @Override
+    public void setData(Object d) throws OperatorException {
+        try {
+            this.data=(double)((Number) d).doubleValue();
+            return;
+        }
+        catch (Exception e) {
+            throw new OperatorException("Unable to cast value to variable",e);
+        }
     }
 
     //métodos
