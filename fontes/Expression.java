@@ -1,39 +1,47 @@
 public class Expression {
     //métodos estáticos
-    public static boolean evaluate(Var term1, ComparisonOperator op, Var term2) throws OperatorException {
+    public static BoolVar evaluate(Var term1, ComparisonOperator op, Var term2) throws OperatorException {
+        boolean res;
         switch (op) {
             case GT :
-                return term1.compareTo(term2)>0 ? true : false;
+                res = term1.compareTo(term2)>0 ? true : false;
+                break;
             case LT :
-                return term1.compareTo(term2)<0 ? true : false;
+                res = term1.compareTo(term2)<0 ? true : false;
+                break;
             case GE :
-                return term1.compareTo(term2)>=0 ? true : false;
+                res = term1.compareTo(term2)>=0 ? true : false;
+                break;
             case LE :
-                return term1.compareTo(term2)<=0 ? true : false;
+                res = term1.compareTo(term2)<=0 ? true : false;
+                break;
             case NE :
-                return term1.compareTo(term2)!=0 ? true : false;
+                res = term1.compareTo(term2)!=0 ? true : false;
+                break;
             case EQ :
-                return term1.compareTo(term2)==0 ? true : false;
+                res = term1.compareTo(term2)==0 ? true : false;
+                break;
             default :
                 throw new OperatorException("Unexpected operator error");
         }
+        return new BoolVar("__tmp",res);
     }
 
-    public static boolean evaluate(Var term1, LogicalOperator op, Var term2) throws OperatorException {
+    public static BoolVar evaluate(Var term1, LogicalOperator op, Var term2) throws OperatorException {
         switch (op) {
             case AND :
-                return term1.lAnd(term2);
+                return new BoolVar("__tmp",term1.lAnd(term2));
             case OR :
-                return term1.lOr(term2);
+                return new BoolVar("__tmp",term1.lOr(term2));
             default : //NOT
                 throw new OperatorException("NOT operator is not expected in this this evaluation");
         }
     }
 
-    public static boolean evaluate(LogicalOperator op, Var term) throws OperatorException {
+    public static BoolVar evaluate(LogicalOperator op, Var term) throws OperatorException {
         switch (op) {
             case NOT :
-                return term.lNot();
+                return new BoolVar("__tmp",term.lNot());
             default : //NOT
                 throw new OperatorException("Current operator is not expected in this this evaluation");
         }
