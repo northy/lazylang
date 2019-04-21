@@ -88,4 +88,28 @@ public class Expression {
                 throw new OperatorException("Unexpected operator");
         }
     }
+
+    public static Var evaluate(CastOperator op, Var term1) throws OperatorException {
+        switch (op) {
+            case INT :
+                return new IntVar(term1.getName(),((Number)term1.getData()).intValue());
+            case DOUBLE :
+                return new DoubleVar(term1.getName(),((Number)term1.getData()).doubleValue());
+            case FLOAT :
+                return new FloatVar(term1.getName(),((Number)term1.getData()).floatValue());
+            case BOOL :
+                try {
+                    return new BoolVar(term1.getName(),DoubleVar.doubleToInt((double)term1.getData()));
+                }
+            catch (Exception e) {}
+                try {
+                    return new BoolVar(term1.getName(),(boolean)term1.getData());
+                }
+                catch (Exception e) {
+                    throw new OperatorException("Unable to cast to type",e);
+                }
+            default :
+                throw new OperatorException("Unexpected operator");
+        }
+    }
 }
