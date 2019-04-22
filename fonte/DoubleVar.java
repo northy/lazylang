@@ -75,7 +75,7 @@ public class DoubleVar extends Var {
         }
         else if (other.getType().equals("float")) {
             int tmpT = doubleToRoundedInt(this.getData());
-            int tmpO = FloatVar.floatToInt((float)other.getData());
+            int tmpO = FloatVar.floatToRoundedInt((float)other.getData());
             return IntVar.intToBool(tmpT)&&IntVar.intToBool(tmpO);
         }
         else {
@@ -100,7 +100,7 @@ public class DoubleVar extends Var {
         }
         else if (other.getType().equals("float")) {
             int tmpT = doubleToRoundedInt(this.getData());
-            int tmpO = FloatVar.floatToInt((float)other.getData());
+            int tmpO = FloatVar.floatToRoundedInt((float)other.getData());
             return IntVar.intToBool(tmpT)||IntVar.intToBool(tmpO);
         }
         else {

@@ -70,7 +70,7 @@ public class IntVar extends Var {
             return IntVar.intToBool((int)this.getData())&&IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {
-            int tmpO = FloatVar.floatToInt((float)other.getData());
+            int tmpO = FloatVar.floatToRoundedInt((float)other.getData());
             return IntVar.intToBool((int)this.getData())&&IntVar.intToBool(tmpO);
         }
         else {
@@ -91,7 +91,7 @@ public class IntVar extends Var {
             return IntVar.intToBool((int)this.getData())||IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {
-            int tmpO = FloatVar.floatToInt((float)other.getData());
+            int tmpO = FloatVar.floatToRoundedInt((float)other.getData());
             return IntVar.intToBool((int)this.getData())||IntVar.intToBool(tmpO);
         }
         else {
