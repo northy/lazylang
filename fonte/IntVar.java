@@ -109,7 +109,7 @@ public class IntVar extends Var {
         if (other.getType().equals("int")) {
             return new IntVar("__tmp",(int)this.getData()+(int)other.getData());
         }
-        if (other.getType().equals("float")) {
+        else if (other.getType().equals("float")) {
             return new FloatVar("__tmp",(float)(int)this.getData()+(float)other.getData());
         }
         else if (other.getType().equals("double")) {
@@ -125,7 +125,7 @@ public class IntVar extends Var {
         if (other.getType().equals("int")) {
             return new IntVar("__tmp",(int)this.getData()-(int)other.getData());
         }
-        if (other.getType().equals("float")) {
+        else if (other.getType().equals("float")) {
             return new FloatVar("__tmp",(float)(int)this.getData()-(float)other.getData());
         }
         else if (other.getType().equals("double")) {
@@ -141,7 +141,7 @@ public class IntVar extends Var {
         if (other.getType().equals("int")) {
             return new IntVar("__tmp",(int)this.getData()*(int)other.getData());
         }
-        if (other.getType().equals("float")) {
+        else if (other.getType().equals("float")) {
             return new FloatVar("__tmp",(float)(int)this.getData()*(float)other.getData());
         }
         else if (other.getType().equals("double")) {
@@ -157,7 +157,7 @@ public class IntVar extends Var {
         if (other.getType().equals("int")) {
             return new DoubleVar("__tmp",(double)(int)this.getData()/(double)(int)other.getData());
         }
-        if (other.getType().equals("float")) {
+        else if (other.getType().equals("float")) {
             return new DoubleVar("__tmp",(double)(int)this.getData()/(double)(float)other.getData());
         }
         else if (other.getType().equals("double")) {
@@ -173,7 +173,7 @@ public class IntVar extends Var {
         if (other.getType().equals("int")) {
             return new IntVar("__tmp",(int)this.getData()%(int)other.getData());
         }
-        if (other.getType().equals("float")) {
+        else if (other.getType().equals("float")) {
             return new FloatVar("__tmp",(float)(int)this.getData()%(float)other.getData());
         }
         else if (other.getType().equals("double")) {
