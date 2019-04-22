@@ -83,7 +83,7 @@ public class BoolVar extends Var {
             return (boolean)this.getData()&&IntVar.intToBool((int)other.getData());
         }
         else if (other.getType().equals("double")) {
-            int tmpO = DoubleVar.doubleToInt((double)other.getData());
+            int tmpO = DoubleVar.doubleToRoundedInt((double)other.getData());
             return (boolean)this.getData()&&IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {
@@ -104,7 +104,7 @@ public class BoolVar extends Var {
             return (boolean)this.getData()||IntVar.intToBool((int)other.getData());
         }
         else if (other.getType().equals("double")) {
-            int tmpO = DoubleVar.doubleToInt((double)other.getData());
+            int tmpO = DoubleVar.doubleToRoundedInt((double)other.getData());
             return (boolean)this.getData()||IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {

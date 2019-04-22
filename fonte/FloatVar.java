@@ -65,17 +65,17 @@ public class FloatVar extends Var {
             return IntVar.intToBool(tmpT)&&(boolean)other.getData();
         }
         else if (other.getType().equals("int")) {
-            int tmpT = DoubleVar.doubleToInt(this.getData());
+            int tmpT = DoubleVar.doubleToRoundedInt(this.getData());
             return IntVar.intToBool(tmpT)&&IntVar.intToBool((int)other.getData());
         }
         else if (other.getType().equals("double")) {
             int tmpT = floatToInt(this.getData());
-            int tmpO = DoubleVar.doubleToInt((double)other.getData());
+            int tmpO = DoubleVar.doubleToRoundedInt((double)other.getData());
             return IntVar.intToBool(tmpT)&&IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {
             int tmpT = floatToInt(this.getData());
-            int tmpO = DoubleVar.doubleToInt((double)other.getData());
+            int tmpO = DoubleVar.doubleToRoundedInt((double)other.getData());
             return IntVar.intToBool(tmpT)&&IntVar.intToBool(tmpO);
         }
         else {
@@ -95,7 +95,7 @@ public class FloatVar extends Var {
         }
         else if (other.getType().equals("double")) {
             int tmpT = floatToInt(this.getData());
-            int tmpO = DoubleVar.doubleToInt((double)other.getData());
+            int tmpO = DoubleVar.doubleToRoundedInt((double)other.getData());
             return IntVar.intToBool(tmpT)||IntVar.intToBool(tmpO);
         }
         else if (other.getType().equals("float")) {

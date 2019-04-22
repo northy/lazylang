@@ -99,7 +99,7 @@ public class Expression {
                 return new FloatVar(term1.getName(),((Number)term1.getData()).floatValue());
             case BOOL :
                 try {
-                    return new BoolVar(term1.getName(),DoubleVar.doubleToInt((double)term1.getData()));
+                    return new BoolVar(term1.getName(),DoubleVar.doubleToRoundedInt((double)term1.getData()));
                 }
             catch (Exception e) {}
                 try {
