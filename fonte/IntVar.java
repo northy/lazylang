@@ -10,7 +10,7 @@ public class IntVar extends Var {
         this();
         this.setName(name);
     }
-    
+
     public IntVar(String name,int data) {
         this();
         this.setName(name);

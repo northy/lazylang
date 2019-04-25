@@ -9,20 +9,36 @@ class Parser{
 		for(int i = 0; i < s.length(); i++){
 			//
 			if(s.charAt(i) == ';'){
-				//Percorre subs
+
+				//Percorre string s para descobrir se é um tipo primitivo
 				for(int j = old; j < i-1; j++){
 					subs += s.substring(j,j+1); 
 					
 					//Types
 					//Type Int
 					if(subs.equals("int")){
-						k=old+j+2;
+						k=old+j+1;
 						varName = "";
-						while(k < s.length() && (s.charAt(k)!=';' || s.charAt(k)!='=' || s.charAt(k)!=',')){
-							varName += s.charAt(k-1);
+						//Criação de variavel e atribuição
+						while(k < s.length() && s.charAt(k) != ';'){
+							if(s.charAt(k) != ',' &&  s.charAt(k) != '='){
+								varName += s.charAt(k);				
+							}
+							if(s.charAt(k) == ',' || s.charAt(k) == '='){
+								h.put(varName, new IntVar(varName));
+								varName = "";
+								if(s.charAt(k) == '='){
+									break;
+								}
+							}
 							k++;
 						}
-					 	h.put(varName,new IntVar(varName));
+						//Atribuição do valor setado à variavel
+						//System.out.print("Valor do k = " + k);
+						while(k < s.length() && s.charAt(k) != ';'){	
+							return;
+							
+						}					 	
 					}
 
 					//Type Double
@@ -36,6 +52,7 @@ class Parser{
 					}
 				}
 			}
+			//
 		}
 	}
 }
