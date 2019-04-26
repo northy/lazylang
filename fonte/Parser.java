@@ -4,6 +4,7 @@ class Parser{
 	public static void 	parse(String s, HashMap<String,Var> h){
 		String subs = "",varName = "";
 		int old = 0,k;
+
 		//Percorre a linha
 		s = s.replaceAll(" ","");
 		for(int i = 0; i < s.length(); i++){
@@ -19,26 +20,31 @@ class Parser{
 					if(subs.equals("int")){
 						k=old+j+1;
 						varName = "";
+						String value = "0";
+						int control;
+
 						//Criação de variavel e atribuição
 						while(k < s.length() && s.charAt(k) != ';'){
 							if(s.charAt(k) != ',' &&  s.charAt(k) != '='){
-								varName += s.charAt(k);				
+								varName += s.charAt(k);
 							}
-							if(s.charAt(k) == ',' || s.charAt(k) == '='){
-								h.put(varName, new IntVar(varName));
-								varName = "";
-								if(s.charAt(k) == '='){
-									break;
+							if(s.charAt(k) == '='){
+								value = "";
+								control = k+1;
+								//Percorre o valor e add ele a uma variavel
+								for(int l = k+1; s.charAt(control) != ',' && s.charAt(control) != ';'; l++){
+									value += s.charAt(l);								
+									control++;
 								}
+								k = control;
+							}
+							if(s.charAt(k) == ',' || s.charAt(k) == ';'){
+								h.put(varName, new IntVar(varName,Integer.parseInt(value)));
+								varName = "";
+								value = "0";
 							}
 							k++;
-						}
-						//Atribuição do valor setado à variavel
-						//System.out.print("Valor do k = " + k);
-						while(k < s.length() && s.charAt(k) != ';'){	
-							return;
-							
-						}					 	
+						}				 	
 					}
 
 					//Type Double
