@@ -18,11 +18,10 @@ class Parser{
 					//Types
 					//Type Int
 					if(subs.equals("int")){
-						k=old+j+1;
+						k=old+(j - old)+1;
 						varName = "";
 						String value = "0";
 						int control;
-
 						//Criação de variavel e atribuição
 						while(k < s.length() && s.charAt(k) != ';'){
 							if(s.charAt(k) != ',' &&  s.charAt(k) != '='){
@@ -44,12 +43,13 @@ class Parser{
 								value = "0";
 							}
 							k++;
-						}				 	
+						}
+						break;				 	
 					}
 
 					//Type Double
 					if(subs.equals("double")){
-						k=old+j+1;
+						k=old+(j - old)+1;
 						varName = "";
 						String value = "0.0";
 						int control;
@@ -76,11 +76,12 @@ class Parser{
 							}
 							k++;
 						}
+						break;
 					}
 
 					//Type Bool
 					if(subs.equals("bool")){
-						k=old+j+1;
+						k=old+(j - old)+1;
 						varName = "";
 						String value = "0";
 						int control,size;
@@ -115,6 +116,7 @@ class Parser{
 							}
 							k++;
 						}
+						break;
 					}
 
 					//Type String
@@ -122,6 +124,8 @@ class Parser{
 						return; 
 					}
 				}
+				subs = "";
+				old = i + 1;
 			}
 			//
 		}
