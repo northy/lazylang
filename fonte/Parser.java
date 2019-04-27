@@ -78,6 +78,45 @@ class Parser{
 						}
 					}
 
+					//Type Bool
+					if(subs.equals("bool")){
+						k=old+j+1;
+						varName = "";
+						String value = "0";
+						int control,size;
+
+						//Criação de variavel e atribuição
+						while(k < s.length() && s.charAt(k) != ';'){
+							if(s.charAt(k) != ',' &&  s.charAt(k) != '='){
+								varName += s.charAt(k);
+							}
+							if(s.charAt(k) == '='){
+								value = "";
+								control = k+1;
+								//Percorre o valor e add ele a uma variavel
+								for(int l = k+1; s.charAt(control) != ',' && s.charAt(control) != ';'; l++){
+									value += s.charAt(l);								
+									control++;
+								}
+								k = control;
+							}
+							if(s.charAt(k) == ',' || s.charAt(k) == ';' || s.charAt(k+1) == ';'){
+								if(value.equals("false")){
+									h.put(varName, new BoolVar(varName,false));
+								}else if(value.equals("true")){
+									h.put(varName, new BoolVar(varName,true));
+								}else if(value.charAt(0) == '0'){
+									h.put(varName, new BoolVar(varName,Integer.parseInt(value)));
+								}else{
+									h.put(varName, new BoolVar(varName,Integer.parseInt(value)));
+								}
+								varName = "";
+								value = "0";
+							}
+							k++;
+						}
+					}
+
 					//Type String
 					if(subs.equals("string")){
 						return; 
