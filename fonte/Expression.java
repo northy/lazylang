@@ -1,4 +1,38 @@
+import java.util.HashMap;
+
 public class Expression {
+    private String expression;
+    HashMap<String, Var> map;
+
+    //construtores
+    public Expression(String e, HashMap<String, Var> m) {
+        this.setExpression(e);
+        this.setMap(m);
+    }
+
+    //getters
+    public String getExpression() {
+        return this.expression;
+    }
+
+    public HashMap<String,Var> getMap() {
+        return this.map;
+    }
+
+    //setters
+    public void setExpression(String e) {
+        this.expression=e;
+    }
+
+    public void setMap(HashMap<String, Var> map) {
+        this.map=map;
+    }
+
+    //métodos
+    public void evaluateSelf() {
+        Parser.parse(expression,map);
+    }
+
     //métodos estáticos
     public static BoolVar evaluate(Var term1, ComparisonOperator op, Var term2) throws OperatorException {
         boolean res;
@@ -89,21 +123,21 @@ public class Expression {
         }
     }
 
-    public static Var evaluate(CastOperator op, Var term1) throws OperatorException {
+    public static Var evaluate(CastOperator op, Var term) throws OperatorException {
         switch (op) {
             case INT :
-                return new IntVar(term1.getName(),((Number)term1.getData()).intValue());
+                return new IntVar(term.getName(),((Number)term.getData()).intValue());
             case DOUBLE :
-                return new DoubleVar(term1.getName(),((Number)term1.getData()).doubleValue());
+                return new DoubleVar(term.getName(),((Number)term.getData()).doubleValue());
             case FLOAT :
-                return new FloatVar(term1.getName(),((Number)term1.getData()).floatValue());
+                return new FloatVar(term.getName(),((Number)term.getData()).floatValue());
             case BOOL :
                 try {
-                    return new BoolVar(term1.getName(),DoubleVar.doubleToRoundedInt((double)term1.getData()));
+                    return new BoolVar(term.getName(),DoubleVar.doubleToRoundedInt((double)term.getData()));
                 }
             catch (Exception e) {}
                 try {
-                    return new BoolVar(term1.getName(),(boolean)term1.getData());
+                    return new BoolVar(term.getName(),(boolean)term.getData());
                 }
                 catch (Exception e) {
                     throw new OperatorException("Unable to cast to type",e);
