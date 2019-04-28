@@ -2,53 +2,47 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 class ForLoop implements Runnable {
-    protected String preExp,midExp,postExp;
-    protected ArrayList<String> expressions;
-    protected HashMap<String, Var> map;
+    protected Expression preExp,midExp,postExp;
+    protected ArrayList<Expression> expressions;
     
     //construtores
-    public ForLoop(String pre, String mid, String post, ArrayList<String> e, HashMap<String, Var> map) {
+    public ForLoop(Expression pre, Expression mid, Expression post, ArrayList<Expression> e, HashMap<String, Var> map) {
         this.setPreExp(pre);
         this.setMidExp(mid);
         this.setPostExp(post);
         this.setExpressions(e);
-        this.setMap(map);
     }
 
     //getters
-    public ArrayList<String> getExpressions() {
+    public ArrayList<Expression> getExpressions() {
         return this.expressions;
     }
 
     //setters
-    public void setPreExp(String s) {
+    public void setPreExp(Expression s) {
         this.preExp=s;
     }
 
-    public void setMidExp(String s) {
+    public void setMidExp(Expression s) {
         this.midExp=s;
     }
 
-    public void setPostExp(String s) {
+    public void setPostExp(Expression s) {
         this.postExp=s;
     }
 
-    public void setExpressions(ArrayList<String> e) {
+    public void setExpressions(ArrayList<Expression> e) {
         this.expressions=e;
-    }
-
-    public void setMap(HashMap<String, Var> map) {
-        this.map=map;
     }
 
     //métodos
     public void run() {
-        Parser.parse(preExp,map);
-        while ((boolean)Parser.parse(midExp,map).getData()) {
-            for (String s:this.getExpressions()) {
-                Parser.parse(s,map);
+        preExp.evaluateSelf();
+        while ((boolean)midExp.evaluateSelf().getData()) {
+            for (Expression x:this.getExpressions()) {
+                x.evaluateSelf();
             }
-            Parser.parse(postExp,map);
+            postExp.evaluateSelf();
         }
     }
 }
