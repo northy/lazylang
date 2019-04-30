@@ -1,7 +1,8 @@
 import java.util.HashMap;
-
+/***** Passando para o Giovane *//// obs: Não funciona corretamente
 class Parser{
 	
+	//Em caso de ter um tipo primitivo na linha de execução, esta função atribui a variavel a seu tipo e o valor vaso estejam na mesma linha
 	public static void variableCreation(String type,String s,HashMap<String,Var> hash){
 		String varName = "";
 		int init; 
@@ -11,6 +12,7 @@ class Parser{
 			String value = "0";
 			int control;
 			init = 3;
+
 			//Criação de variavel e atribuição
 			while(init < s.length() && s.charAt(init) != ';'){
 				if(s.charAt(init) != ',' &&  s.charAt(init) != '='){
@@ -116,6 +118,31 @@ class Parser{
 		}
 	}
 
+	//********** Falta impplementar ***********\\
+	/*
+	public static void alterationVariable(String s, String operator,HashMap<String,Var> hash){
+		String nameOfVariable = "",value = "";
+		int control = 0;
+		while(s.charAt(control) != '+' && s.charAt(control) != '-' && s.charAt(control) != '/' && s.charAt(control) != '*' && s.charAt(control) != '='){
+			nameOfVariable += s.charAt(control);
+			control++;
+
+		}
+
+		if(operator.equals("+")){
+			if(s.charAt(control++) == '='){
+				for(int i = control + 1; s.charAt(control) != ';'; i++){
+					value += s.charAt(i);
+				}
+				//priority(nameOfVariable,operator,value,hash);
+			}else{
+				return;
+			}
+
+		}
+	}
+	*/
+
 	public static void structureCondition(String s,HashMap<String,Var> hash){
 		return;
 	}
@@ -124,8 +151,45 @@ class Parser{
 		return;
 	}
 
+	//Retorna uma lista de quais execuçoes devem ser feitas primeiras (prioridade)
+	public static HashMap<String,String> priority(String expression){
+		HashMap<String,String> primary = new HashMap<String,String>();
+		
+		//Configuration of name -- #@pri@#_ -- where has _ exist one number of line. Ex: #@pri@#1, #@pri@#2 ... 
+		String l1 = "#@pri@#", position = "",express = "";
+		int control = 0,parenteses = 0,quant = 0,pri = 0;
+		
+		//Percorre o valor para ver se existe prioridade, caso exista, descobre se todos os parenteses estão fechados		
+		while(expression.charAt(control) != ';'){
+			if(expression.charAt(control) == '('){
+				parenteses++;
+				quant++;
+			}
+			if(expression.charAt(control) == ')'){
+				parenteses--;
+			}
+			control++;
+		}
+		//Verifica se há erros na quantidade de parenteses
+		if(parenteses == 0){
+			int contador = quant;
+			control = 0;
+			
+			while(control < expression.length()){
+				//Falta Implementar
+				control++;
+			}
+			
+		}else{
+			//Deve retornar um error
+			return primary;
+		}
+		return primary;
+	}
+	
+
 	public static void parse(String s, HashMap<String,Var> h){
-		String subs = "",type = "";
+		String subs = "",variable = "",operator = "";
 		int old = 0;
 
 		//Percorre a linha
@@ -136,15 +200,24 @@ class Parser{
 			if(s.charAt(i) == ';'){
 				
 				for(int j = old; j < i; j++){
-					type += s.substring(j,j+1);
-					if(type.equals("int") || type.equals("double") || type.equals("bool")){
-						variableCreation(type,subs,h);
+					variable += s.substring(j,j+1);
+
+					//Instanciação das variaveis
+					if(variable.equals("int") || variable.equals("double") || variable.equals("bool")){
+						variableCreation(variable,subs,h);
 						subs = "";
 						old = i+1;
-						type = "";
+						variable = "";
 						break;
 					}
-					//
+					//*****   Falta implementar *******\
+					//Possivel alteração/atribuição de valor a variavel
+					operator += subs.charAt(j + 1);
+					if(operator.equals("-") || operator.equals("+") || operator.equals("*") || operator.equals("/") || operator.equals("=")){
+						HashMap<String,String> pri = new HashMap<String,String>();
+						pri = priority("5+1*2;");
+						System.out.println(pri.values());
+					}
 				}
 			}
 		}

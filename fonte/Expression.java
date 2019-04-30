@@ -135,7 +135,8 @@ public class Expression {
                 try {
                     return new BoolVar(term.getName(),DoubleVar.doubleToRoundedInt((double)term.getData()));
                 }
-            catch (Exception e) {}
+                catch (Exception e) {}
+                
                 try {
                     return new BoolVar(term.getName(),(boolean)term.getData());
                 }
