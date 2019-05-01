@@ -194,6 +194,10 @@ public class FloatVar extends Var {
         }
     }
 
+    public Var copy() {
+        return new FloatVar(this.getName(),(float)this.getData());
+    }
+
     //Static methods
     public static int floatToRoundedInt(float f) {
         return (float)f<0 ? (int)Math.floor(f) : (int)Math.ceil(f);

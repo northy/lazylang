@@ -189,6 +189,10 @@ public class IntVar extends Var {
         }
     }
 
+    public Var copy() {
+        return new IntVar(this.getName(),(int)this.getData());
+    }
+
     //Static methods
     public static boolean intToBool(int i) {
         return i==0 ? false : true;

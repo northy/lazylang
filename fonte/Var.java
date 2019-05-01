@@ -31,9 +31,7 @@ public abstract class Var {
         return this.getData() == ((Var) other).getData();
     }
 
-    public int compareTo(Var other) {
-        return 0;
-    }
+    abstract public int compareTo(Var other);
 
     public boolean lAnd(Var other) throws OperatorException {
         throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
@@ -66,4 +64,6 @@ public abstract class Var {
     public Var mod(Var other) throws OperatorException {
         throw new OperatorException("Uncompatible types for arithmetic mod function: " + this.getType() + " and " + other.getType());
     }
+
+    abstract public Var copy();
 }

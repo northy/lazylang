@@ -120,4 +120,8 @@ public class BoolVar extends Var {
     public boolean lNot() {
         return !((boolean)this.getData());
     }
+
+    public Var copy() {
+        return new BoolVar(this.getName(),(boolean)this.getData());
+    }
 }

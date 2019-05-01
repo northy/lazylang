@@ -194,6 +194,10 @@ public class DoubleVar extends Var {
         }
     }
 
+    public Var copy() {
+        return new DoubleVar(this.getName(),(double)this.getData());
+    }
+
     //métodos estáticos
     public static int doubleToRoundedInt(double d) {
         return (double)d<0 ? (int)Math.floor(d) : (int)Math.ceil(d);
