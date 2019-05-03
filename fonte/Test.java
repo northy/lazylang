@@ -4,8 +4,8 @@ class Test {
     public static void main(String[] args) {
         //HashMap<String,Var> a = new HashMap<String,Var>();
         //Parser.parse("a = 5 + 1 * 2;",a);
-        
-        Vector v = new Vector("a");
+        CharVar c = new CharVar("c",'d');
+            Vector v = new Vector("a");
         for (int i=0; i<10; ++i) {
             v.append(new IntVar(i));
         }
@@ -20,5 +20,6 @@ class Test {
         nv.print();
         v.print();
         nv.clear();
+        c.print();
     }
 }
