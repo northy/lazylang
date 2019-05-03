@@ -6,6 +6,11 @@ public class DoubleVar extends Var {
         this.type="double";
     }
     
+    public DoubleVar(String name){
+        this();
+        this.setName(name);
+    }
+
     public DoubleVar(String name,double data) {
         this();
         this.setName(name);
