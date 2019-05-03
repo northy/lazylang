@@ -6,6 +6,11 @@ public class CharVar extends Var {
         this.type="char";
     }
     
+    public CharVar(String name){
+        this();
+        this.setName(name);
+    }
+
     public CharVar(String name,Character data) {
         this();
         this.setName(name);
