@@ -6,6 +6,11 @@ public class FloatVar extends Var {
         this.type="float";
     }
     
+    public FloatVar(String name){
+        this();
+        this.setName(name);
+    }
+
     public FloatVar(String name,float data) {
         this();
         this.setName(name);

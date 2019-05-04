@@ -65,5 +65,7 @@ public abstract class Var {
         throw new OperatorException("Uncompatible types for arithmetic mod function: " + this.getType() + " and " + other.getType());
     }
 
-    abstract public Var copy();
+    public Var copy(){
+        return null;
+    }
 }

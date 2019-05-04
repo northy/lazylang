@@ -6,6 +6,11 @@ public class BoolVar extends Var {
         this.type="bool";
     }
 
+    public BoolVar(String name){
+        this();
+        this.setName(name);
+    }
+
     public BoolVar(String name,boolean data) {
         this();
         this.setName(name);

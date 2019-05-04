@@ -30,7 +30,8 @@ class Parser{
 					init = control;
 				}
 				if(s.charAt(init) == ',' || s.charAt(init) == ';' || s.charAt(init + 1) == ';'){
-					hash.put(varName, new IntVar(varName,Integer.parseInt(value)));
+					hash.put(varName, new IntVar(varName));
+					Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new IntVar(Integer.parseInt(value)));
 					varName = "";
 					value = "0";
 				}
@@ -63,7 +64,8 @@ class Parser{
 					init = control;
 				}
 				if(s.charAt(init) == ',' || s.charAt(init) == ';' || s.charAt(init + 1) == ';'){
-					hash.put(varName, new DoubleVar(varName,Double.parseDouble(value)));
+					hash.put(varName, new DoubleVar(varName));
+					Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new DoubleVar(Double.parseDouble(value)));
 					varName = "";
 					value = "0.0";
 				}
@@ -96,13 +98,17 @@ class Parser{
 				}
 				if(s.charAt(init) == ',' || s.charAt(init) == ';' || s.charAt(init + 1) == ';'){
 					if(value.equals("false")){
-						hash.put(varName, new BoolVar(varName,false));
+						hash.put(varName, new BoolVar(varName));
+						Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new BoolVar(false));
 					}else if(value.equals("true")){
-						hash.put(varName, new BoolVar(varName,true));
+						hash.put(varName, new BoolVar(varName));
+						Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new BoolVar(true));
 					}else if(value.charAt(0) == '0'){
-						hash.put(varName, new BoolVar(varName,Integer.parseInt(value)));
+						hash.put(varName, new BoolVar(varName));
+						Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new IntVar(Integer.parseInt(value)));
 					}else{
-						hash.put(varName, new BoolVar(varName,Integer.parseInt(value)));
+						hash.put(varName, new BoolVar(varName));
+						Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new IntVar(Integer.parseInt(value)));
 					}
 					varName = "";
 					value = "0";
@@ -111,10 +117,10 @@ class Parser{
 			}
 			return;
 		}
-
+		
 		//Type String
-		if(type.equals("string")){
-			return; 
+		if(type.equals("str")){
+			System.out.println("Funciona"); 
 		}
 	}
 
@@ -156,7 +162,7 @@ class Parser{
 		HashMap<String,String> primary = new HashMap<String,String>();
 		
 		//Configuration of name -- #@pri@#_ -- where has _ exist one number of line. Ex: #@pri@#1, #@pri@#2 ... 
-		String l1 = "#@pri@#", position = "",express = "";
+		String configName = "#@pri@#",express = "",init = "";
 		int control = 0,parenteses = 0,quant = 0,pri = 0;
 		
 		//Percorre o valor para ver se existe prioridade, caso exista, descobre se todos os parenteses estão fechados		
@@ -171,14 +177,13 @@ class Parser{
 			control++;
 		}
 		//Verifica se há erros na quantidade de parenteses
+		express = expression;
 		if(parenteses == 0){
-			int contador = quant;
 			control = 0;
-			
-			while(control < expression.length()){
-				//Falta Implementar
-				control++;
-			}
+			//while(){
+			///
+			//	control++;
+	//		}
 			
 		}else{
 			//Deve retornar um error
@@ -203,7 +208,7 @@ class Parser{
 					variable += s.substring(j,j+1);
 
 					//Instanciação das variaveis
-					if(variable.equals("int") || variable.equals("double") || variable.equals("bool")){
+					if(variable.equals("int") || variable.equals("double") || variable.equals("bool") || variable.equals("str")){
 						variableCreation(variable,subs,h);
 						subs = "";
 						old = i+1;
@@ -213,11 +218,12 @@ class Parser{
 					//*****   Falta implementar *******\
 					//Possivel alteração/atribuição de valor a variavel
 					operator += subs.charAt(j + 1);
-					if(operator.equals("-") || operator.equals("+") || operator.equals("*") || operator.equals("/") || operator.equals("=")){
-						HashMap<String,String> pri = new HashMap<String,String>();
-						pri = priority("5+1*2;");
-						System.out.println(pri.values());
-					}
+					//if(operator.equals("-") || operator.equals("+") || operator.equals("*") || operator.equals("/") || operator.equals("=")){
+						///HashMap<String,String> pri = new HashMap<String,String>();
+						///pri = priority("5+1*2;");
+						///System.out.println(pri.values());
+					///	return;
+					//}
 				}
 			}
 		}
