@@ -46,7 +46,9 @@ public class CharVar extends Var {
     @Override
     public int compareTo(Var other) throws ArithmeticException {
         if (other.getType().equals("char")) {
-            int __tmp = (int)this.getData()-(int)other.getData();
+            String char1 = "" + this.getData();
+            String char2 = "" + other.getData();
+            int __tmp = char1.codePointAt(0)-char2.codePointAt(0);
             return __tmp;
         }
         else {
@@ -70,10 +72,8 @@ public class CharVar extends Var {
         else{
             throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
         }
+
     }
-        throw new OperatorException("Uncompatible types for logical or function: " + this.getType() + " and " + other.getType());
-    }
-    
     public boolean lNot() throws OperatorException {
     if (this.getType().equals("char")){
             return false;
