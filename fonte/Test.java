@@ -1,15 +1,16 @@
-//import java.util.HashMap;
+import java.util.HashMap;
 
 class Test {
     public static void main(String[] args) {
 
         //HashMap<String,Var> a = new HashMap<String,Var>();
         //Parser.parse("a = 5 + 1 * 2;",a);
-        CharVar c = new CharVar("c",'d');
-        Vector v = new Vector("a");
+        //CharVar c = new CharVar("c",'d');
+        //Vector v = new Vector("a");
         HashMap<String,Var> a = new HashMap<String,Var>();
-        Parser.parse("str cuzao = 4;",a);
-        ((Var)a.get("cuzao")).print();
+        Parser.parse("ab - cd * pp - jk / llll - p + ppp;",a);
+        /*
+        //((Var)a.get("cuzao")).print();
         //for(int i = 0; i < a.size(); i++){
           
         }
@@ -29,6 +30,6 @@ class Test {
         nv.print();
         v.print();
         nv.clear();
-
+        */
     }
 }
