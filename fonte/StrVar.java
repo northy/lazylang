@@ -26,7 +26,7 @@ public class StrVar extends Var{
     }
     public void setData(Object d) throws OperatorException {
         try {
-            this.data=(String)((String) d).toString();
+            this.data=(String) d;
             return;
         }
         catch (Exception e) {
