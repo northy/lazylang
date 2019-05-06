@@ -8,7 +8,7 @@ class Test {
         //CharVar c = new CharVar("c",'d');
         //Vector v = new Vector("a");
         HashMap<String,Var> a = new HashMap<String,Var>();
-        Parser.parse("ab - cd * pp - jk / llll - p + ppp;",a);
+        Parser.parse("- 6 + 8 * 8 / 9 * 8 / 2 - 9 / 6 ;",a);
         /*
         //((Var)a.get("cuzao")).print();
         //for(int i = 0; i < a.size(); i++){

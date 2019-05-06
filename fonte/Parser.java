@@ -165,7 +165,7 @@ class Parser{
 			return 0;
 		}
 		//Precedencia de operadores
-		String[] prece = new String[20];
+		String[] prece = new String[18];
 		//**
 		prece[0] = "(";//Abre parenteses
 		prece[1] = ")";//Fecha parenteses
@@ -174,23 +174,21 @@ class Parser{
 		prece[4] = "%";//Modulo
 		prece[5] = "+";//Adição
 		prece[6] = "-";//Subtração
-		prece[7] = "++";//Adição da variavel em +1
-		prece[8] = "--";//Subtração da variavel em -1
-		prece[9] = "+=";//Adição de ... na variavel
-		prece[10] = "-=";//Subtração de ... na variavel
-		prece[11] = "<";//Menor que
-		prece[12] = "<=";//Menor ou igual que
-		prece[13] = ">";//Maior que 
-		prece[14] = ">=";//Maior ou igual que
-		prece[15] = "==";//Igual a 
-		prece[16] = "!=";//Diferente de
-		prece[17] = "&&";//And
-		prece[18] = "||";//Or
-		prece[19] = "!";//Not
+		prece[7] = "+=";//Adição de ... na variavel
+		prece[8] = "-=";//Subtração de ... na variavel
+		prece[9] = "<";//Menor que
+		prece[10] = "<=";//Menor ou igual que
+		prece[11] = ">";//Maior que 
+		prece[12] = ">=";//Maior ou igual que
+		prece[13] = "==";//Igual a 
+		prece[14] = "!=";//Diferente de
+		prece[15] = "&&";//And
+		prece[16] = "||";//Or
+		prece[17] = "!";//Not
 		//**
 
 		int indexOperator1 = 0, indexOperator2 = 0;
-		for(int i = 0; i < 20; i++){
+		for(int i = 0; i < 18; i++){
 			if(operator1.equals(prece[i])){
 				indexOperator1 = i;
 			}
@@ -201,11 +199,11 @@ class Parser{
 
 		//Compara qual tem a precedencia maior
 		//retorna 1 caso o operador2 tiver maior procedencia
-		if(indexOperator1 >= indexOperator2){
+		if(indexOperator1 > indexOperator2){
 			return 1;
 		}
 		//retorna 2 caso o operador 1 tiver maior procedencia
-		if(indexOperator1 < indexOperator2){
+		if(indexOperator1 <= indexOperator2){
 			return 2;
 		}
 		return 3;
@@ -215,7 +213,7 @@ class Parser{
 	private static HashMap<String,String> priority(String express){
 		HashMap<String,String> precedence = new HashMap<String,String>();
 		
-		int control = 0,parenteses = 0,quant = 0;
+		int control = 0,parenteses = 0;
 		
 		if(express.charAt(express.length() - 1) != ';'){
 			express += ";";
@@ -225,7 +223,6 @@ class Parser{
 		while(express.charAt(control) != ';'){
 			if(express.charAt(control) == '('){
 				parenteses++;
-				quant++;
 			}
 			if(express.charAt(control) == ')'){
 				parenteses--;
@@ -238,7 +235,7 @@ class Parser{
 			
 			//Configuration of name -- #@_ -- where has _ exist one number of line. Ex: #@0, #@1 ... 
 			String value = "",configName = "#@",operator = "";
-			int pri = 0,initExpress = 0,initSecond = 0,endSecond = 0;
+			int pri = 0,initExpress = 0,initSecond = 0,endSecond = 0,negativo = 0;
 			boolean continuar = true;
 			control = 0;
 			
@@ -252,25 +249,32 @@ class Parser{
 
 				//Caso encontre um operador
 				if(express.charAt(control) == '+' || express.charAt(control) == '-' || //Continua na proxima linha 
-					express.charAt(control) == '*' || express.charAt(control) == '/' || express.charAt(control) == '%'){
+				   express.charAt(control) == '*' || express.charAt(control) == '/' || express.charAt(control) == '%'){
 					
 					//Verifica se não é um somador ou subtrator da propria variavel
 					if(express.charAt(control + 1) == '+' || express.charAt(control + 1) == '-'){
 						break;
 					}
 					else{
-
+						if(operator.equals("") && value.equals("")){
+							negativo = 1;
+						}
 						//Verifica se na expressão salva em value ja existe um operador
 						if(operator.equals("")){
 							operator = Character.toString(express.charAt(control));
 							initSecond = control +1;
+
 						}else{
 							endSecond = control -1;
-							
+							if(negativo == 1){
+								negativo = 2;
+							}
 							//Verifica a precendencia dos operadores
-							if(precedence(operator,Character.toString(express.charAt(control))) == 1){
+							else if(precedence(operator,Character.toString(express.charAt(control))) == 1){
 								value = express.substring(initSecond,endSecond + 1);
+								operator = Character.toString(express.charAt(control));	
 								initExpress = initSecond;
+								initSecond = control + 1;
 
 							//Atribui a expressão para o HashMap
 							}else{
@@ -290,18 +294,19 @@ class Parser{
 				}
 
 				//Verifica se terminou a execução da linha
-				if(express.charAt(control) == ';'){
-					precedence.put(configName + Integer.toString(pri),value);
+				if(express.charAt(control) == ';' || negativo == 2){
+					precedence.put(configName + pri,value);
 
 					//Aprimorar essa execução/**
-					express = express.replace(value,configName + Integer.toString(pri));
+					express = express.replace(value,configName + pri);
 					//**
 
-					continuar = !express.equals(configName + Integer.toString(pri) + ";");
+					continuar = !express.equals(configName + pri + ";");
 					control = 0;
 					pri++;
 					value = "";	
 					operator = "";
+					negativo = 0;
 				}
 
 				//Caso nenhum dos casos seja executado ele salva o character em value para futura comparação
