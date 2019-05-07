@@ -91,12 +91,12 @@ public class Parser{
 	}
 
 	//Implementar esse método
-	private static void structureCondition(String s,HashMap<String,Var> hash){
+	private static void structureCondition(String expression,HashMap<String,Var> variables){
 		return;
 	}
 
 	//Implementar esse método
-	private static void structureRepetition(String s,HashMap<String,Var> hash){
+	private static void structureRepetition(String expression,HashMap<String,Var> variables){
 		return;
 	}
 
@@ -151,13 +151,13 @@ public class Parser{
 	}
 
 	//Verefica se há parenteses na expressõa e se houver verefica se todos estão fechados corretamente
-	private static boolean relativesAreRight(String express){
+	private static boolean parenthesesAreRight(String expression){
 		int parenteses = 0;
 
-		for(int i = 0; i < express.length() -1; i++){
-			if(express.charAt(i) == '('){
+		for(int i = 0; i < expression.length() -1; i++){
+			if(expression.charAt(i) == '('){
 				parenteses++;
-			}else{
+			}else if(expression.charAt(i) == ')'){
 				parenteses--;
 			}
 		}
@@ -169,47 +169,38 @@ public class Parser{
 		return false;
 	}
 
-	//Retorna um valor de quais execuções foram feitas primeirasm  (prioridade)
-	private static void parsePriority(String expression,HashMap<String,Var> hash){
+	//Retorna um valor do tipo Var independente da expressão //IMPLEMENTAR... OBS: Vou começar à implementar
+	private static void parsePriority(String expression,HashMap<String,Var> variables){
 		int control = 0;
 		
-		if(expression.charAt(expression.length() - 1) != ';'){
+		if(expression.charAt(expression.length() -1) != ';'){
 			expression += ";";
 		}
-		if(relativesAreRight(expression)){
-				String value = "";
-				boolean continuar = true;
-				control = 0;			
+		if(parenthesesAreRight(expression)){
+				return;	
 		}
 	}
 	
 
-	public void parse(String s, HashMap<String,Var> h){
-		String subs = "",variable = "",operator = "";
+	public void parse(String expression, HashMap<String,Var> mapOfVariables){
+		String subString = "",variable = "",operator = "";
 		int old = 0;
 
 		//Percorre a linha
-		s = s.replaceAll(" ","");
-		for(int i = 0; i < s.length(); i++){
-			subs += s.substring(i, i+1);
+		expression = expression.replaceAll(" ","");
+		for(int i = 0; i < expression.length(); i++){
+			subString += expression.substring(i, i+1);
 
-			if(s.charAt(i) == ';'){
+			if(expression.charAt(i) == ';'){
 				for(int j = old; j < i; j++){
-					variable += s.substring(j,j+1);
+					variable += expression.substring(j,j+1);
 
 					//Instanciação das variaveis
 					if(variable.equals("int") || variable.equals("double") || variable.equals("bool") || variable.equals("str")){
-						variableCreation(variable,subs,h);
-						subs = "";
+						variableCreation(variable,subString,mapOfVariables);
+						subString = "";
 						old = i+1;
 						variable = "";
-						break;
-					}
-	
-					//Possivel alteração/atribuição de valor a variavel
-					operator = Character.toString(variable.charAt(j));
-					if(operator.equals("-") || operator.equals("+") || operator.equals("*") || operator.equals("/") || operator.equals("=")){	
-						
 						break;
 					}
 				}
