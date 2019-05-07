@@ -103,7 +103,7 @@ public class Parser{
 	//Retorna qual tem a precedencia mais alta
 	private static int precedence(String operator1,String operator2){
 		
-		//retorna 0 caso não haja operadores suficientes para comparação ou ambos são iguais
+		//Retorna 0 caso não haja operadores suficientes para comparação ou ambos são iguais
 		if(operator1.equals(operator2) || operator1.equals("") || operator2.equals("")){
 			return 0;
 		}
@@ -130,6 +130,7 @@ public class Parser{
 		prece[17] = "!";//Not
 		//**
 
+		//Verifica qual nivel de precedencia cada operador tem
 		int indexOperator1 = 0, indexOperator2 = 0;
 		for(int i = 0; i < 18; i++){
 			if(operator1.equals(prece[i])){
@@ -145,11 +146,8 @@ public class Parser{
 		if(indexOperator1 > indexOperator2){
 			return 1;
 		}
-		//Retorna 2 caso o operador 1 tiver maior procedencia
-		if(indexOperator1 <= indexOperator2){
-			return 2;
-		}
-		return 3;
+		//Retorna 0 caso o operador 1 tiver maior procedencia
+		return 0;
 	}
 
 	//Verefica se há parenteses na expressõa e se houver verefica se todos estão fechados corretamente
@@ -181,10 +179,7 @@ public class Parser{
 		if(relativesAreRight(expression)){
 				String value = "";
 				boolean continuar = true;
-				control = 0;
-				
-				//Percore toda a expressão descobrindo qual operação será realizada primeiro
-				
+				control = 0;			
 		}
 	}
 	
