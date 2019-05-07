@@ -94,4 +94,4 @@ class Vector extends Var {
 			System.out.println(this.get(i).getData());
 		}
 	}
-}
+}// Revisado por Fernando

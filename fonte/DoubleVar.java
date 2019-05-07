@@ -208,3 +208,4 @@ public class DoubleVar extends Var {
         return (double)d<0 ? (int)Math.floor(d) : (int)Math.ceil(d);
     }
 }
+// Revisado por Fernando

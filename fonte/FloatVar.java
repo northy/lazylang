@@ -208,3 +208,4 @@ public class FloatVar extends Var {
         return (float)f<0 ? (int)Math.floor(f) : (int)Math.ceil(f);
     }
 }
+// Revisado por Fernando

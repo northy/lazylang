@@ -198,3 +198,4 @@ public class IntVar extends Var {
         return i==0 ? false : true;
     }
 }
+// Revisado por Fernando

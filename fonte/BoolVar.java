@@ -130,3 +130,4 @@ public class BoolVar extends Var {
         return new BoolVar(this.getName(),(boolean)this.getData());
     }
 }
+// Revisado por Fernando

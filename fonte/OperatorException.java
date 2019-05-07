@@ -8,4 +8,4 @@ public class OperatorException extends RuntimeException {
         super(errorMessage, err);
     }
     
-}
+}// Revisado por Fernando

@@ -4,3 +4,4 @@ public enum CastOperator {
     FLOAT,
     BOOL;
 }
+// Revisado por Fernando

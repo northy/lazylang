@@ -6,3 +6,4 @@ public enum ComparisonOperator {
     LE, //LESSER OR EQUAL
     NE; //NOT EQUAL
 }
+// Revisado por Fernando

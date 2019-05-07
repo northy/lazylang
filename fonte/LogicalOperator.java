@@ -3,3 +3,4 @@ public enum LogicalOperator {
     OR, //If any of the two operands are non-zero then condition becomes true (||)
     NOT; //Used to reverse the logical state of its operand (!)
 }
+// Revisado por Fernando

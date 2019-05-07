@@ -34,4 +34,4 @@ public class StrVar extends Var{
             throw new OperatorException("Unable to cast value to variable",e);
         }
     }
-}
+}// Revisado por Fernando
