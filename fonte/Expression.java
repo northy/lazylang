@@ -3,6 +3,7 @@ import java.util.HashMap;
 public class Expression {
     private String expression;
     HashMap<String, Var> map;
+    Parser parse = new Parser();
 
     //construtores
     public Expression(String e, HashMap<String, Var> m) {
@@ -30,7 +31,7 @@ public class Expression {
 
     //métodos
     public void evaluateSelf() {
-        Parser.parse(expression,map);
+        parse.parse(expression,map);
     }
 
     //métodos estáticos

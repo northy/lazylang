@@ -1,159 +1,102 @@
 import java.util.HashMap;
+import java.util.ArrayList;
 
-class Parser{
+public class Parser{
 	
-	//Em caso de ter um tipo primitivo na linha de execução, esta função atribui a variavel a seu tipo e o valor vaso estejam na mesma linha
-	private static void variableCreation(String type,String s,HashMap<String,Var> hash){
-		String varName = "";
-		int init; 
-			
+	//Instanciação de variavel e atribuição de valor à mesma caso seja passado
+	private static void variableCreation(String type,String expression,HashMap<String,Var> variables){
+		String varName = "",value = "";
+		int init = 0,selectionType = 0,control; 
+		
+		//Verifica qual o tipo primitivo	
 		//Type Int
 		if(type.equals("int")){
-			String value = "0";
-			int control;
+			value = "0";
 			init = 3;
-
-			//Criação de variavel e atribuição
-			while(init < s.length() && s.charAt(init) != ';'){
-				if(s.charAt(init) != ',' &&  s.charAt(init) != '='){
-					varName += s.charAt(init);
-				}
-				if(s.charAt(init) == '='){
-					value = "";
-					control = init + 1;
-					
-					//Percorre o valor e add ele a uma variavel
-					for(int l = init + 1; s.charAt(control) != ',' && s.charAt(control) != ';'; l++){
-						value += s.charAt(l);								
-						control++;
-					}
-					init = control;
-				}
-				if(s.charAt(init) == ',' || s.charAt(init) == ';' || s.charAt(init + 1) == ';'){
-					hash.put(varName, new IntVar(varName));
-					Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new IntVar(Integer.parseInt(value)));
-					varName = "";
-					value = "0";
-				}
-				init++;
-			}
-			return;				 	
+			selectionType = 1;
 		}
-
 		//Type Double
-		if(type.equals("double")){	
-			String value = "0.0";
-			int control;
-
+		else if(type.equals("double")){
+			value = "0.0";
 			init = 6;
-
-			//Criação de variavel e atribuição
-			while(init < s.length() && s.charAt(init) != ';'){
-				if(s.charAt(init) != ',' &&  s.charAt(init) != '='){
-					varName += s.charAt(init);
-				}
-				if(s.charAt(init) == '='){
-					value = "";
-					control = init + 1;
-
-					//Percorre o valor e add ele a uma variavel
-					for(int l = init + 1; s.charAt(control) != ',' && s.charAt(control) != ';'; l++){
-						value += s.charAt(l);								
-						control++;
-					}
-					init = control;
-				}
-				if(s.charAt(init) == ',' || s.charAt(init) == ';' || s.charAt(init + 1) == ';'){
-					hash.put(varName, new DoubleVar(varName));
-					Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new DoubleVar(Double.parseDouble(value)));
-					varName = "";
-					value = "0.0";
-				}
-				init++;
-			}
-			return;
+			selectionType = 2;
 		}
-
-		//Type Bool
-		if(type.equals("bool")){
-			String value = "0";
-			int control,size;
-
+		//Type Boolean
+		else if(type.equals("bool")){
+			value = "0";
 			init = 4;
-
-			//Criação de variavel e atribuição
-			while(init < s.length() && s.charAt(init) != ';'){
-				if(s.charAt(init) != ',' &&  s.charAt(init) != '='){
-					varName += s.charAt(init);
-				}
-				if(s.charAt(init) == '='){
-					value = "";
-					control = init + 1;
-					//Percorre o valor e add ele a uma variavel
-					for(int l = init + 1; s.charAt(control) != ',' && s.charAt(control) != ';'; l++){
-						value += s.charAt(l);								
-						control++;
-					}
-					init = control;
-				}
-				if(s.charAt(init) == ',' || s.charAt(init) == ';' || s.charAt(init + 1) == ';'){
-					if(value.equals("false")){
-						hash.put(varName, new BoolVar(varName));
-						Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new BoolVar(false));
-					}else if(value.equals("true")){
-						hash.put(varName, new BoolVar(varName));
-						Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new BoolVar(true));
-					}else if(value.charAt(0) == '0'){
-						hash.put(varName, new BoolVar(varName));
-						Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new IntVar(Integer.parseInt(value)));
-					}else{
-						hash.put(varName, new BoolVar(varName));
-						Expression.evaluate(hash.get(varName), AssignmentOperator.ASSIGN,new IntVar(Integer.parseInt(value)));
-					}
-					varName = "";
-					value = "0";
-				}
-				init++;
-			}
-			return;
+			selectionType = 3;
 		}
-		
-		//Type String
-		if(type.equals("str")){
-			System.out.println("Funciona"); 
+
+		//Leitura do nome da variavel e atribuição de valor 
+		while(init < expression.length() && expression.charAt(init) != ';'){
+			//Descobre o nome da variavel
+			if(expression.charAt(init) != ',' &&  expression.charAt(init) != '='){
+				varName += expression.charAt(init);
+			}
+			//Verefica se há uma atribuição de valor a variavel
+			if(expression.charAt(init) == '='){
+				value = "";
+				control = init + 1;
+				
+				//Percorre o valor e add ele a uma variavel
+				for(int l = init + 1; expression.charAt(control) != ',' && expression.charAt(control) != ';'; l++){
+					value += expression.charAt(l);								
+					control++;
+				}
+				init = control;
+			}
+			//Add as variaveis nos HashMap e atribui os valores às variaveis
+			if(expression.charAt(init) == ',' || expression.charAt(init) == ';' || expression.charAt(init + 1) == ';'){
+				
+				//Atribuição de valor e instanciação de variavel do tipo INT
+				if(selectionType == 1){
+					//Verifica se existe valor em VALUE e add valor à variavel
+					if(!value.equals("")){
+						value = "0";
+					}
+					variables.put(varName, new IntVar(varName));
+					Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new IntVar(Integer.parseInt(value)));
+				}
+				//Atribuição de valor e instanciação de variavel do tipo DOUBLE
+				else if(selectionType == 2){
+					//Verifica se existe valor em VALUE e add valor à variavel
+					if(!value.equals("")){
+						value = "0";
+					}
+					variables.put(varName, new DoubleVar(varName));
+					Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new DoubleVar(Double.parseDouble(value)));
+				}
+				//Atribuição de valor e instanciação de variavel do tipo BOOLEAN
+				else if(selectionType == 3){
+					if(value.equals("false") || value.equals("0")){
+						variables.put(varName, new BoolVar(varName));
+						Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new BoolVar(false));
+					}
+					else if(value.equals("true")){
+						variables.put(varName, new BoolVar(varName));
+						Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new BoolVar(true));
+					}
+					else{
+						variables.put(varName, new BoolVar(varName));
+						Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new BoolVar(true));
+					}
+				}
+				varName = "";
+				value = "0";
+
+			}
+			init++;
 		}
 	}
 
-	//********** Falta impplementar ***********\\
-	/*
-	public static void alterationVariable(String s, String operator,HashMap<String,Var> hash){
-		String nameOfVariable = "",value = "";
-		int control = 0;
-		while(s.charAt(control) != '+' && s.charAt(control) != '-' && s.charAt(control) != '/' && s.charAt(control) != '*' && s.charAt(control) != '='){
-			nameOfVariable += s.charAt(control);
-			control++;
-
-		}
-
-		if(operator.equals("+")){
-			if(s.charAt(control++) == '='){
-				for(int i = control + 1; s.charAt(control) != ';'; i++){
-					value += s.charAt(i);
-				}
-				//priority(nameOfVariable,operator,value,hash);
-			}else{
-				return;
-			}
-
-		}
-	}
-	*/
-
+	//Implementar esse método
 	private static void structureCondition(String s,HashMap<String,Var> hash){
 		return;
 	}
 
-	public static void structureRepetition(String s,HashMap<String,Var> hash){
+	//Implementar esse método
+	private static void structureRepetition(String s,HashMap<String,Var> hash){
 		return;
 	}
 
@@ -198,139 +141,55 @@ class Parser{
 		}
 
 		//Compara qual tem a precedencia maior
-		//retorna 1 caso o operador2 tiver maior procedencia
+		//Retorna 1 caso o operador2 tiver maior procedencia
 		if(indexOperator1 > indexOperator2){
 			return 1;
 		}
-		//retorna 2 caso o operador 1 tiver maior procedencia
+		//Retorna 2 caso o operador 1 tiver maior procedencia
 		if(indexOperator1 <= indexOperator2){
 			return 2;
 		}
 		return 3;
 	}
 
-	//Retorna uma lista de quais execuções devem ser feitas primeiras (prioridade)
-	private static HashMap<String,String> priority(String express){
-		HashMap<String,String> precedence = new HashMap<String,String>();
-		
-		int control = 0,parenteses = 0;
-		
-		if(express.charAt(express.length() - 1) != ';'){
-			express += ";";
-		}
+	//Verefica se há parenteses na expressõa e se houver verefica se todos estão fechados corretamente
+	private static boolean relativesAreRight(String express){
+		int parenteses = 0;
 
-		//Percorre o valor para ver se existe prioridade, caso exista, descobre se todos os parenteses estão fechados		
-		while(express.charAt(control) != ';'){
-			if(express.charAt(control) == '('){
+		for(int i = 0; i < express.length() -1; i++){
+			if(express.charAt(i) == '('){
 				parenteses++;
-			}
-			if(express.charAt(control) == ')'){
+			}else{
 				parenteses--;
 			}
-			control++;
 		}
 
-		//Verifica se há erros na quantidade de parenteses
+		//Retorna true se tudo estiver correto
 		if(parenteses == 0){
-			
-			//Configuration of name -- #@_ -- where has _ exist one number of line. Ex: #@0, #@1 ... 
-			String value = "",configName = "#@",operator = "";
-			int pri = 0,initExpress = 0,initSecond = 0,endSecond = 0,negativo = 0;
-			boolean continuar = true;
-			control = 0;
-			
-			//Percore toda a expressão descobrindo qual operação será realizada primeiro
-			while(continuar){
-				
-				//Prioridade em resolver o que esta entre parenteses
-				if(express.charAt(control) == '('){
-					break;//Falta implementar
-				}
-
-				//Caso encontre um operador
-				if(express.charAt(control) == '+' || express.charAt(control) == '-' || //Continua na proxima linha 
-				   express.charAt(control) == '*' || express.charAt(control) == '/' || express.charAt(control) == '%'){
-					
-					//Verifica se não é um somador ou subtrator da propria variavel
-					if(express.charAt(control + 1) == '+' || express.charAt(control + 1) == '-'){
-						break;
-					}
-					else{
-						if(operator.equals("") && value.equals("")){
-							negativo = 1;
-						}
-						//Verifica se na expressão salva em value ja existe um operador
-						if(operator.equals("")){
-							operator = Character.toString(express.charAt(control));
-							initSecond = control +1;
-
-						}else{
-							endSecond = control -1;
-							if(negativo == 1){
-								negativo = 2;
-							}
-							//Verifica a precendencia dos operadores
-							else if(precedence(operator,Character.toString(express.charAt(control))) == 1){
-								value = express.substring(initSecond,endSecond + 1);
-								operator = Character.toString(express.charAt(control));	
-								initExpress = initSecond;
-								initSecond = control + 1;
-
-							//Atribui a expressão para o HashMap
-							}else{
-								precedence.put(configName + pri,value);
-
-								//Aprimorar essa execução
-								express = express.replace(value,configName + pri);
-								control = 0;
-
-								pri++;
-								value = "";	
-								operator = "";					
-							}
-
-						}
-					}
-				}
-
-				//Verifica se terminou a execução da linha
-				if(express.charAt(control) == ';' || negativo == 2){
-					precedence.put(configName + pri,value);
-
-					//Aprimorar essa execução/**
-					express = express.replace(value,configName + pri);
-					//**
-
-					continuar = !express.equals(configName + pri + ";");
-					control = 0;
-					pri++;
-					value = "";	
-					operator = "";
-					negativo = 0;
-				}
-
-				//Caso nenhum dos casos seja executado ele salva o character em value para futura comparação
-				else{
-
-					//Verifica se a variavel value esta vazia para demarcar onde começa a expressão
-					if(value.equals("")){
-						initExpress = control;
-					}
-
-					value += express.charAt(control);
-					control++;
-				}
-			}
-			
-		}else{
-			//Deve retornar um error
-			return precedence;
+			return true;
 		}
-		return precedence;
+		return false;
+	}
+
+	//Retorna um valor de quais execuções foram feitas primeirasm  (prioridade)
+	private static void parsePriority(String expression,HashMap<String,Var> hash){
+		int control = 0;
+		
+		if(expression.charAt(expression.length() - 1) != ';'){
+			expression += ";";
+		}
+		if(relativesAreRight(expression)){
+				String value = "";
+				boolean continuar = true;
+				control = 0;
+				
+				//Percore toda a expressão descobrindo qual operação será realizada primeiro
+				
+		}
 	}
 	
 
-	public static void parse(String s, HashMap<String,Var> h){
+	public void parse(String s, HashMap<String,Var> h){
 		String subs = "",variable = "",operator = "";
 		int old = 0;
 
@@ -354,13 +213,8 @@ class Parser{
 	
 					//Possivel alteração/atribuição de valor a variavel
 					operator = Character.toString(variable.charAt(j));
-					if(operator.equals("-") || operator.equals("+") || operator.equals("*") || operator.equals("/") || operator.equals("=")){
+					if(operator.equals("-") || operator.equals("+") || operator.equals("*") || operator.equals("/") || operator.equals("=")){	
 						
-						HashMap<String,String> pri = new HashMap<String,String>();
-						pri = priority(subs);
-						for(String args : pri.values()){
-							System.out.println(args);
-						}
 						break;
 					}
 				}

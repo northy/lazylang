@@ -4,7 +4,8 @@ import java.util.HashMap;
 class Test {
     public static void main(String[] args) {
         HashMap<String,Var> a = new HashMap<String,Var>();
-        Parse teste = new Parse("bool a;",a);
+        Parser teste = new Parser();
+        teste.parse("bool a;",a);
         ((Var)a.get("a")).print();
     }
 }
