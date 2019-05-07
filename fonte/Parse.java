@@ -46,7 +46,7 @@ public class Parse{
 				}
 				init = control;
 			}
-			//Descobre se há instanciação de outra variavel na mesma linha
+			//Add as variaveis nos HashMap  e atribui os valores as variaveis
 			if(expression.charAt(init) == ',' || expression.charAt(init) == ';' || expression.charAt(init + 1) == ';'){
 				
 				//Atribuição de valor e instanciação de variavel do tipo INT
