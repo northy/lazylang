@@ -27,6 +27,12 @@ public class Parser{
 			init = 4;
 			selectionType = 3;
 		}
+		//String type
+		else if(type.equals("str")){
+			value = "";
+			init = 3;
+			selectionType = 4;
+		}
 
 		//Leitura do nome da variavel e atribuição de valor 
 		while(init < expression.length() && expression.charAt(init) != ';'){
@@ -81,6 +87,13 @@ public class Parser{
 						variables.put(varName, new BoolVar(varName));
 						Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new BoolVar(true));
 					}
+				}
+				else if(selectionType == 4){
+					if(!value.equals("")){
+						value = "";
+					}
+					variables.put(varName,new StrVar(varName));
+					Expression.evaluate(variables.get(varName),AssignmentOperator.ASSIGN,new StrVar(value));
 				}
 				varName = "";
 				value = "0";
