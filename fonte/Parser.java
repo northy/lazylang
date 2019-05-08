@@ -11,25 +11,21 @@ public class Parser{
 		//Verifica qual o tipo primitivo	
 		//Type Int
 		if(type.equals("int")){
-			value = "0";
 			init = 3;
 			selectionType = 1;
 		}
 		//Type Double
 		else if(type.equals("double")){
-			value = "0.0";
 			init = 6;
 			selectionType = 2;
 		}
 		//Type Boolean
 		else if(type.equals("bool")){
-			value = "0";
 			init = 4;
 			selectionType = 3;
 		}
 		//String type
 		else if(type.equals("str")){
-			value = "";
 			init = 3;
 			selectionType = 4;
 		}
@@ -58,7 +54,7 @@ public class Parser{
 				//Atribuição de valor e instanciação de variavel do tipo INT
 				if(selectionType == 1){
 					//Verifica se existe valor em VALUE e add valor à variavel
-					if(!value.equals("")){
+					if(value.equals("")){
 						value = "0";
 					}
 					variables.put(varName, new IntVar(varName));
@@ -67,7 +63,7 @@ public class Parser{
 				//Atribuição de valor e instanciação de variavel do tipo DOUBLE
 				else if(selectionType == 2){
 					//Verifica se existe valor em VALUE e add valor à variavel
-					if(!value.equals("")){
+					if(value.equals("")){
 						value = "0";
 					}
 					variables.put(varName, new DoubleVar(varName));
@@ -88,10 +84,7 @@ public class Parser{
 						Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new BoolVar(true));
 					}
 				}
-				else if(selectionType == 4){
-					if(!value.equals("")){
-						value = "";
-					}
+				else if(selectionType == 4){	
 					variables.put(varName,new StrVar(varName));
 					Expression.evaluate(variables.get(varName),AssignmentOperator.ASSIGN,new StrVar(value));
 				}
@@ -170,7 +163,8 @@ public class Parser{
 		for(int i = 0; i < expression.length() -1; i++){
 			if(expression.charAt(i) == '('){
 				parenteses++;
-			}else if(expression.charAt(i) == ')'){
+			}
+			else if(expression.charAt(i) == ')'){
 				parenteses--;
 			}
 		}

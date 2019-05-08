@@ -4,14 +4,17 @@ public class StrVar extends Var{
 	public StrVar(){
 		this.type = "str";
 	}
+
 	public StrVar(String name,String data) {
         this();
         this.setName(name);
         this.setData(data);
     }
 
-    public StrVar(String data) {
-        this("__tmp",data);
+    public StrVar(String name){
+        this();
+        this.name = name; 
+        this.data = null;       
     }
 
     //getters

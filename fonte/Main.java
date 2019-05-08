@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 class Main {
     public static void main(String[] args) {
+        Parser parse = new Parser();
         HashMap<String,Var> map = new HashMap<String,Var>();
         if (args.length>0) {
             File file;
@@ -19,18 +20,21 @@ class Main {
             }
             
             while (fileInput.hasNextLine()) {
-                Parser.parse(fileInput.nextLine(),map);
+                parse.parse(fileInput.nextLine(),map);
             }
             fileInput.close();
         }
         else {
             Scanner s = new Scanner(System.in);
             String line;
+            int linha = 0;
             for (;;) {
-                System.out.print("<$> ");
+                System.out.printf("<%d> ",linha);
                 line=s.nextLine();
                 if (line.equals("q")) return;
-                Parser.parse(line,map);
+                parse.parse(line,map);
+                ((Var)map.get("a")).print();
+                linha++;
             }
         }
     }
