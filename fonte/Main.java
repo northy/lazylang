@@ -31,7 +31,7 @@ class Main {
             for (;;) {
                 System.out.printf("<%d> ",linha);
                 line=s.nextLine();
-                if (line.equals("q")) return;
+                if (line.equals("q")) break;
                 p.parse(line,map);
                  ((Var)map.get("a")).print();
             }

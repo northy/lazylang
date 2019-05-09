@@ -82,47 +82,6 @@ public class BoolVar extends Var {
         }
     }
 
-    @Override
-    public boolean lAnd(Var other) throws OperatorException{
-        boolean o;
-
-        try {
-            o=(double)other.getData() != 0;
-            return this.getData() && o;
-        }
-        catch (Exception e) {}
-        try {
-            o=(boolean)other.getData();
-            return this.getData() && o;
-        }
-        catch (Exception e) {
-            throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
-        }
-    }
-
-    @Override
-    public boolean lOr(Var other) throws OperatorException{
-        boolean o;
-
-        try {
-            o=(double)other.getData() != 0;
-            return this.getData() || o;
-        }
-        catch (Exception e) {}
-        try {
-            o=(boolean)other.getData();
-            return this.getData() || o;
-        }
-        catch (Exception e) {
-            throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
-        }
-    }
-
-    @Override
-    public boolean lNot() {
-        return !(this.getData());
-    }
-
     public Var copy() {
         return new BoolVar(this.getName(),this.getData());
     }

@@ -28,36 +28,149 @@ public abstract class Var {
 
     public abstract int compareTo(Var other);
 
-    public boolean lAnd(Var other) throws OperatorException {
-        throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
+    public boolean lAnd(Var other) throws OperatorException{
+        boolean t=false, o=false, step=false;
+
+        try {
+            t=((Number)this.getData()).doubleValue() != 0;
+            step=true;
+        }
+        catch (Exception e) {}
+        try {
+            t=(boolean)this.getData();
+            step=true;
+        }
+        catch (Exception e) {
+            if (!step) throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
+        }
+
+        step=false;
+
+        try {
+            o=((Number)other.getData()).doubleValue() != 0;
+            step=true;
+        }
+        catch (Exception e) {}
+        try {
+            o=(boolean)other.getData();
+            step=true;
+        }
+        catch (Exception e) {
+            if (!step) throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
+        }
+
+        return t&&o;
     }
 
-    public boolean lOr(Var other) throws OperatorException {
-        throw new OperatorException("Uncompatible types for logical or function: " + this.getType() + " and " + other.getType());
+    public boolean lOr(Var other) throws OperatorException{
+        boolean t=false, o=false, step=false;
+
+        try {
+            t=((Number)this.getData()).doubleValue() != 0;
+            step=true;
+        }
+        catch (Exception e) {}
+        try {
+            t=(boolean)this.getData();
+            step=true;
+        }
+        catch (Exception e) {
+            if (!step) throw new OperatorException("Uncompatible types for logical or function: " + this.getType() + " and " + other.getType());
+        }
+
+        step=false;
+
+        try {
+            o=((Number)other.getData()).doubleValue() != 0;
+            step=true;
+        }
+        catch (Exception e) {}
+        try {
+            o=(boolean)other.getData();
+            step=true;
+        }
+        catch (Exception e) {
+            if (!step) throw new OperatorException("Uncompatible types for logical or function: " + this.getType() + " and " + other.getType());
+        }
+
+        return t||o;
     }
-    
-    public boolean lNot() throws OperatorException {
-        throw new OperatorException("Uncompatible type for logical or function: " + this.getType());
+
+    public boolean lNot() {
+        boolean t;
+
+        try {
+            t=((Number)this.getData()).doubleValue() != 0;
+            return !t;
+        }
+        catch (Exception e) {}
+        try {
+            t=(boolean)this.getData();
+            return !t;
+        }
+        catch (Exception e) {
+            throw new OperatorException("Uncompatible type for logical not function: " + this.getType());
+        }
     }
 
     public Var add(Var other) throws OperatorException {
-        throw new OperatorException("Uncompatible types for arithmetic add function: " + this.getType() + " and " + other.getType());
+        double t, o;
+        try {
+            t = ((Number)this.getData()).doubleValue();
+            o = ((Number)other.getData()).doubleValue();
+        } catch (Exception e) {
+            throw new OperatorException("Uncompatible types for arithmetic add function: " + this.getType() + " and " + other.getType());
+        }
+
+        return new FloatVar("__tmp", t+o);
     }
 
     public Var sub(Var other) throws OperatorException {
-        throw new OperatorException("Uncompatible types for arithmetic sub function: " + this.getType() + " and " + other.getType());
+        double t, o;
+        try {
+            t = ((Number)this.getData()).doubleValue();
+            o = ((Number)other.getData()).doubleValue();
+        } catch (Exception e) {
+            throw new OperatorException("Uncompatible types for arithmetic sub function: " + this.getType() + " and " + other.getType());
+        }
+
+        return new FloatVar("__tmp", t-o);
+    }
+    
+    public Var mult(Var other) throws OperatorException {
+        double t, o;
+        try {
+            t = ((Number)this.getData()).doubleValue();
+            o = ((Number)other.getData()).doubleValue();
+        } catch (Exception e) {
+            throw new OperatorException("Uncompatible types for arithmetic mult function: " + this.getType() + " and " + other.getType());
+        }
+
+        return new FloatVar("__tmp", t*o);
     }
 
     public Var div(Var other) throws OperatorException {
-        throw new OperatorException("Uncompatible types for arithmetic div function: " + this.getType() + " and " + other.getType());
-    }
+        double t, o;
+        try {
+            t = ((Number)this.getData()).doubleValue();
+            o = ((Number)other.getData()).doubleValue();
+        } catch (Exception e) {
+            throw new OperatorException("Uncompatible types for arithmetic div function: " + this.getType() + " and " + other.getType());
+        }
 
-    public Var mult(Var other) throws OperatorException {
-        throw new OperatorException("Uncompatible types for arithmetic mult function: " + this.getType() + " and " + other.getType());
+        return new FloatVar("__tmp", t/o);
     }
 
     public Var mod(Var other) throws OperatorException {
-        throw new OperatorException("Uncompatible types for arithmetic mod function: " + this.getType() + " and " + other.getType());
+        double t, o;
+        try {
+            t = ((Number)this.getData()).doubleValue();
+            o = ((Number)other.getData()).doubleValue();
+        } catch (Exception e) {
+            throw new OperatorException("Uncompatible types for arithmetic mod function: " + this.getType() + " and " + other.getType());
+        }
+
+        return new FloatVar("__tmp", t%o);
     }
 
     public abstract Var copy();
