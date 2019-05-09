@@ -1,39 +1,4 @@
-import java.util.HashMap;
-
-public class Expression {
-    private String expression;
-    HashMap<String, Var> map;
-    Parser parse = new Parser();
-
-    //construtores
-    public Expression(String e, HashMap<String, Var> m) {
-        this.setExpression(e);
-        this.setMap(m);
-    }
-
-    //getters
-    public String getExpression() {
-        return this.expression;
-    }
-
-    public HashMap<String,Var> getMap() {
-        return this.map;
-    }
-
-    //setters
-    public void setExpression(String e) {
-        this.expression=e;
-    }
-
-    public void setMap(HashMap<String, Var> map) {
-        this.map=map;
-    }
-
-    //métodos
-    public void evaluateSelf() {
-        parse.parse(expression,map);
-    }
-
+public abstract class Expression {
     //métodos estáticos
     public static BoolVar evaluate(Var term1, ComparisonOperator op, Var term2) throws OperatorException {
         boolean res;
@@ -127,23 +92,11 @@ public class Expression {
     public static Var evaluate(CastOperator op, Var term) throws OperatorException {
         switch (op) {
             case INT :
-                return new IntVar(term.getName(),((Number)term.getData()).intValue());
-            case DOUBLE :
-                return new DoubleVar(term.getName(),((Number)term.getData()).doubleValue());
+                return new IntVar(term.getData());
             case FLOAT :
-                return new FloatVar(term.getName(),((Number)term.getData()).floatValue());
+                return new FloatVar(term.getData());
             case BOOL :
-                try {
-                    return new BoolVar(term.getName(),DoubleVar.doubleToRoundedInt((double)term.getData()));
-                }
-                catch (Exception e) {}
-                
-                try {
-                    return new BoolVar(term.getName(),(boolean)term.getData());
-                }
-                catch (Exception e) {
-                    throw new OperatorException("Unable to cast to type",e);
-                }
+                return new BoolVar(term.getData());
             default :
                 throw new OperatorException("Unexpected operator");
         }

@@ -27,13 +27,15 @@ class Main {
         else {
             Scanner s = new Scanner(System.in);
             String line;
+            int linha = 0;
             for (;;) {
-                System.out.print("<$> ");
+                System.out.printf("<%d> ",linha);
                 line=s.nextLine();
                 if (line.equals("q")) return;
                 p.parse(line,map);
                  ((Var)map.get("a")).print();
             }
+            s.close();
         }
     }
 }

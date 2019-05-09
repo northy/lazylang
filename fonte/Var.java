@@ -1,12 +1,9 @@
 public abstract class Var {
     protected String name;
-    protected Object data;
     protected String type;
 
     //getters
-    public Object getData() {
-		return null;
-    }
+    public abstract Object getData();
     public String getName() {
         return this.name;
     }
@@ -18,20 +15,18 @@ public abstract class Var {
     public void setName(String name) {
         this.name=name;
     }
-    public void setData(Object d) {
-        this.data=d;
-    }
+    public abstract void setData(Object d);
 
     //métodos
     public void print() {
         System.out.println("Variable name: " + this.getName() + " | Type: " + this.getType() + " | Content: " + this.getData());
     }
 
-    public boolean equals(Object other) {
-        return this.getData() == ((Var) other).getData();
+    public boolean equals(Var other) {
+        return this.getData() == other.getData();
     }
 
-    abstract public int compareTo(Var other);
+    public abstract int compareTo(Var other);
 
     public boolean lAnd(Var other) throws OperatorException {
         throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
@@ -65,7 +60,5 @@ public abstract class Var {
         throw new OperatorException("Uncompatible types for arithmetic mod function: " + this.getType() + " and " + other.getType());
     }
 
-    public Var copy(){
-        return null;
-    }
+    public abstract Var copy();
 }

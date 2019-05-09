@@ -11,7 +11,7 @@ public class Parser{
 		//Verifica qual o tipo primitivo	
 		//Type Int
 		if(type.equals("int")){
-				init = 3;
+			init = 3;
 			selectionType = 1;
 		}
 		//Type Double
@@ -23,6 +23,11 @@ public class Parser{
 		else if(type.equals("bool")){
 			init = 4;
 			selectionType = 3;
+		}
+		//String type
+		else if(type.equals("str")){
+			init = 3;
+			selectionType = 4;
 		}
 
 		//Leitura do nome da variavel e atribuição de valor 
@@ -78,6 +83,10 @@ public class Parser{
 						variables.put(varName, new BoolVar(varName));
 						Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new BoolVar(true));
 					}
+				}
+				else if(selectionType == 4){	
+					variables.put(varName,new StrVar(varName));
+					Expression.evaluate(variables.get(varName),AssignmentOperator.ASSIGN,new StrVar(value));
 				}
 				varName = "";
 				value = "0";
