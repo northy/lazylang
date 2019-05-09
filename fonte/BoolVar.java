@@ -24,15 +24,19 @@ public class BoolVar extends Var {
     public BoolVar(String name,int data) {
         this();
         this.setName(name);
-        this.setData(IntVar.intToBool(data));
+        this.setData(data != 0);
     }
 
     public BoolVar(int data) {
         this("__tmp",data);
     }
 
+    public BoolVar(Object data) {
+        this("__tmp");
+        this.setData(data);
+    }
+
     //getters
-    @Override
     public Boolean getData() {
         return this.data;
     }
@@ -41,7 +45,7 @@ public class BoolVar extends Var {
     @Override
     public void setData(Object d) throws OperatorException {
         try {
-            this.data=IntVar.intToBool(((Integer)d).intValue());
+            this.data=((Number)d).doubleValue() != 0;
             return;
         }
         catch (Exception e) {}
@@ -59,7 +63,7 @@ public class BoolVar extends Var {
     }
     
     public void setData(int d) {
-        this.data=IntVar.intToBool(d);
+        this.data=d != 0;
     }
 
     //métodos estáticos
@@ -71,62 +75,55 @@ public class BoolVar extends Var {
     //métodos
     @Override
     public int compareTo(Var other) throws ArithmeticException {
-        if (other.getType().equals("bool")) {
-            return boolToInt((boolean)this.getData())-boolToInt((boolean)other.getData());
-        }
-        else {
+        try {
+            return boolToInt(this.getData())-boolToInt((boolean)other.getData());
+        } catch (Exception e) {
             throw new ArithmeticException("Uncompatible types for compareTo function: " + this.getType() + " and " + other.getType());
         }
     }
 
     @Override
     public boolean lAnd(Var other) throws OperatorException{
-        if (other.getType().equals("bool")) {
-            return (boolean)this.getData()&&(boolean)other.getData();
+        boolean o;
+
+        try {
+            o=(double)other.getData() != 0;
+            return this.getData() && o;
         }
-        else if (other.getType().equals("int")) {
-            return (boolean)this.getData()&&IntVar.intToBool((int)other.getData());
+        catch (Exception e) {}
+        try {
+            o=(boolean)other.getData();
+            return this.getData() && o;
         }
-        else if (other.getType().equals("double")) {
-            int tmpO = DoubleVar.doubleToRoundedInt((double)other.getData());
-            return (boolean)this.getData()&&IntVar.intToBool(tmpO);
-        }
-        else if (other.getType().equals("float")) {
-            int tmpO = FloatVar.floatToRoundedInt((float)other.getData());
-            return (boolean)this.getData()&&IntVar.intToBool(tmpO);
-        }
-        else {
+        catch (Exception e) {
             throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
         }
     }
 
     @Override
     public boolean lOr(Var other) throws OperatorException{
-        if (other.getType().equals("bool")) {
-            return (boolean)this.getData()||(boolean)other.getData();
+        boolean o;
+
+        try {
+            o=(double)other.getData() != 0;
+            return this.getData() || o;
         }
-        else if (other.getType().equals("int")) {
-            return (boolean)this.getData()||IntVar.intToBool((int)other.getData());
+        catch (Exception e) {}
+        try {
+            o=(boolean)other.getData();
+            return this.getData() || o;
         }
-        else if (other.getType().equals("double")) {
-            int tmpO = DoubleVar.doubleToRoundedInt((double)other.getData());
-            return (boolean)this.getData()||IntVar.intToBool(tmpO);
-        }
-        else if (other.getType().equals("float")) {
-            int tmpO = FloatVar.floatToRoundedInt((float)other.getData());
-            return (boolean)this.getData()||IntVar.intToBool(tmpO);
-        }
-        else {
-            throw new OperatorException("Uncompatible types for logical or function: " + this.getType() + " and " + other.getType());
+        catch (Exception e) {
+            throw new OperatorException("Uncompatible types for logical and function: " + this.getType() + " and " + other.getType());
         }
     }
 
     @Override
     public boolean lNot() {
-        return !((boolean)this.getData());
+        return !(this.getData());
     }
 
     public Var copy() {
-        return new BoolVar(this.getName(),(boolean)this.getData());
+        return new BoolVar(this.getName(),this.getData());
     }
 }

@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-class Vector extends Var {
+public class Vector extends Var {
 	protected ArrayList<Var> data;
 
     //construtores
@@ -25,9 +25,22 @@ class Vector extends Var {
         this.data=d;
 	}
 
+	@Override
+	public void setData(Object d) throws OperatorException {
+		try {
+			this.setData(d);
+		} catch (Exception e) {
+			throw new OperatorException("Unexpected data for vector assignment");
+		}
+	}
+
 	//métodos
 	public int compareTo(Var other) {
-		return 0; //TODO
+		try {
+            return this.size().getData()-((Vector)other).size().getData();
+        } catch (Exception e) {
+            throw new ArithmeticException("Uncompatible types for compareTo function: " + this.getType() + " and " + other.getType());
+        }
 	}
 
 	public void append(Var x) {
@@ -38,7 +51,7 @@ class Vector extends Var {
 		this.getData().add(i,x);
 	}
 
-	public void remove(int i) {
+	public void removeByIndex(int i) {
 		this.getData().remove(i);
 	}
 
@@ -70,7 +83,7 @@ class Vector extends Var {
 		return this.getData().get(i);
 	}
 
-	public IntVar count(Var x) {
+	public IntVar countOccurrences(Var x) {
 		int count=0;
 		for (Var v:this.getData()) {
 			if (v.equals(x)) count++;
