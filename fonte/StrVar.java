@@ -67,6 +67,16 @@ public class StrVar extends Var{
     
     }
 
+    //Retorna uma cópia da string
+    @Override
+    public StrVar copy() {
+        StrVar s = new StrVar(this.getName());
+        for (int i = 0;i<=(this.getData().length());i++) {
+            s.concat(""+this.getData().charAt(i));
+        }
+        return s;
+    }
+
     //retorna o caractere que há na posição passada como parâmetro
     public char content(int i)
     {
