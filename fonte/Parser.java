@@ -2,6 +2,118 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 public class Parser{
+	//Métodos estáticos
+	public static Var toVar(String value, HashMap<String,Var> variables) {
+		return variables.get(value);
+	}
+
+	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables) {
+        int l = exp.length(), i=0;
+        Object operator;
+        exp+=" "; //Evitar NullPointerException
+        ArrayList<Object> stack = new ArrayList<Object>();
+        String parsing="";
+        char c,c1;
+
+        while (i<l) {
+            parsing+=exp.charAt(i);
+            
+            operator=null;
+            c=exp.charAt(i);
+            c1=exp.charAt(i+1);
+
+            if (c=='=' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || i==l-1) {
+				//TODO: terminar
+				System.out.println(parsing);
+                if (i!=l-1) parsing=parsing.substring(0, parsing.length()-1);
+                System.out.println(parsing);
+                if (!parsing.equals("")) stack.add(Parser.toVar(parsing, variables));
+
+                if (c=='=' && c1=='=') {
+                    operator=ComparisonOperator.EQ;
+                    i++;
+                }
+                else if (c=='<' && c1=='=') {
+                    operator=ComparisonOperator.LE;
+                    i++;
+                }
+                else if (c=='>' && c1=='=') {
+                    operator=ComparisonOperator.GE;
+                    i++;
+                }
+                else if (c=='!' && c1=='=') {
+                    operator=ComparisonOperator.NE;
+                    i++;
+                }
+                else if (c=='<') {
+                    operator=ComparisonOperator.LT;
+                }
+                else if (c=='>') {
+                    operator=ComparisonOperator.GT;
+                }
+                else if (c=='=') {
+                    operator=AssignmentOperator.ASSIGN;
+                    i++;
+                }
+                else if (c=='+' && c1=='=') {
+                    operator=AssignmentOperator.ADD_ASSIGN;
+                    i++;
+                }
+                else if (c=='-' && c1=='=') {
+                    operator=AssignmentOperator.SUB_ASSIGN;
+                    i++;
+                }
+                else if (c=='*' && c1=='=') {
+                    operator=AssignmentOperator.MULT_ASSIGN;
+                    i++;
+                }
+                else if (c=='/' && c1=='=') {
+                    operator=AssignmentOperator.DIV_ASSIGN;
+                    i++;
+                }
+                else if (c=='%' && c1=='=') {
+                    operator=AssignmentOperator.MOD_ASSIGN;
+                    i++;
+                }
+                else if (c=='-') {
+                    operator=ArithmeticOperator.SUB;
+                }
+                else if (c=='+') {
+                    operator=ArithmeticOperator.ADD;
+                }
+                else if (c=='*') {
+                    operator=ArithmeticOperator.MULT;
+                }
+                else if (c=='/') {
+                    operator=ArithmeticOperator.DIV;
+                }
+                else if (c=='%') {
+                    operator=ArithmeticOperator.MOD;
+                }
+                else if (c=='|' && c1=='|') {
+                    operator=LogicalOperator.OR;
+                    i++;
+                }
+                else if (c=='&' && c1=='&') {
+                    operator=LogicalOperator.AND;
+                    i++;
+                }
+                else if (c=='!') {
+                    operator=LogicalOperator.NOT;
+                }
+
+                if (operator instanceof Object) {
+                    stack.add(operator);
+                }
+
+                parsing="";
+            }
+
+            i++;
+        }
+        
+        return stack;
+    }
 	
 	//Instanciação de variavel e atribuição de valor à mesma caso seja passado
 	private static void variableCreation(String type,String expression,HashMap<String,Var> variables){
@@ -66,8 +178,8 @@ public class Parser{
 					if(value.equals("")){
 						value = "0";
 					}
-					variables.put(varName, new DoubleVar(varName));
-					Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new DoubleVar(Double.parseDouble(value)));
+					variables.put(varName, new FloatVar(varName));
+					Expression.evaluate(variables.get(varName), AssignmentOperator.ASSIGN,new FloatVar(Double.parseDouble(value)));
 				}
 				//Atribuição de valor e instanciação de variavel do tipo BOOLEAN
 				else if(selectionType == 3){
@@ -115,7 +227,7 @@ public class Parser{
 		if(parenthesesAreRight(expression)){
 				
 			//Variaveis de controle
-			ArrayList<Object> stacks = new ArrayList();
+			ArrayList<Object> stacks = new ArrayList<Object>();
 			String varName = "",operator = "";
 			int index = 0;
 
