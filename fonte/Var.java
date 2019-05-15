@@ -174,4 +174,8 @@ public abstract class Var {
     }
 
     public abstract Var copy();
+
+    public String toString() {
+        return this.getData().toString();
+    }
 }

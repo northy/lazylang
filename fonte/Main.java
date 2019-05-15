@@ -4,9 +4,10 @@ import java.util.Scanner;
 
 class Main {
     public static void main(String[] args) {
-        Parser p = new Parser();
-        HashMap<String,Var> map = new HashMap<String,Var>();
+        Parser p;
+        HashMap<String,Var> vars = new HashMap<String,Var>();
         if (args.length>0) {
+            p = new Parser(false);
             File file;
             Scanner fileInput;
             try {
@@ -20,20 +21,19 @@ class Main {
             }
             
             while (fileInput.hasNextLine()) {
-                p.parse(fileInput.nextLine(),map);
+                p.parse(fileInput.nextLine(),vars);
             }
             fileInput.close();
         }
         else {
-            Scanner s = new Scanner(System.in);
-            String line;
-            int linha = 0;
+            p = new Parser(true);
+            Scanner s = new Scanner(System.in, "UTF-8");
+            String line="";
             for (;;) {
-                System.out.printf("<%d> ",linha);
+                System.out.print("Prelude> ");
                 line=s.nextLine();
                 if (line.equals("q")) break;
-                p.parse(line,map);
-                 ((Var)map.get("a")).print();
+                p.parse(line,vars);
             }
             s.close();
         }
