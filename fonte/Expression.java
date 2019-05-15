@@ -1,5 +1,56 @@
+import java.util.HashMap;
+
 public abstract class Expression {
     //métodos estáticos
+    public static int compareOperators(Object a, Object b) throws OperatorException {
+        HashMap<Object,Integer> vectorOfPrecedence = new HashMap<Object,Integer>();
+        vectorOfPrecedence.put(ArithmeticOperator.MOD,1);
+        vectorOfPrecedence.put(ArithmeticOperator.DIV,1);
+        vectorOfPrecedence.put(ArithmeticOperator.MULT,1);
+        vectorOfPrecedence.put(ArithmeticOperator.ADD,2);
+        vectorOfPrecedence.put(ArithmeticOperator.SUB,2);
+        vectorOfPrecedence.put(ComparisonOperator.EQ,3);
+        vectorOfPrecedence.put(ComparisonOperator.LE,3);
+        vectorOfPrecedence.put(ComparisonOperator.GE,3);
+        vectorOfPrecedence.put(ComparisonOperator.GT,3);
+        vectorOfPrecedence.put(ComparisonOperator.LT,3);
+        vectorOfPrecedence.put(ComparisonOperator.NE,3);
+        vectorOfPrecedence.put(LogicalOperator.NOT,4);
+        vectorOfPrecedence.put(LogicalOperator.AND,5);
+        vectorOfPrecedence.put(LogicalOperator.OR,6);
+        vectorOfPrecedence.put(AssignmentOperator.ASSIGN,7);
+        vectorOfPrecedence.put(AssignmentOperator.ADD_ASSIGN,7);
+        vectorOfPrecedence.put(AssignmentOperator.SUB_ASSIGN,7);
+        vectorOfPrecedence.put(AssignmentOperator.MULT_ASSIGN,7);
+        vectorOfPrecedence.put(AssignmentOperator.DIV_ASSIGN,7);
+        vectorOfPrecedence.put(AssignmentOperator.MOD_ASSIGN,7);
+        if (!(a instanceof Enum) || !(b instanceof Enum)) {
+            throw new OperatorException("Unknown type: " + a.getClass().getSimpleName() + " or " + b.getClass().getSimpleName());
+        }
+        return vectorOfPrecedence.get(a)<vectorOfPrecedence.get(b) ? 1 : -1;
+    }
+
+    public static Var evaluate(Object term1, Object op, Object term2) throws RuntimeException {
+        try {
+            return Expression.evaluate((Var)term1, (ArithmeticOperator)op, (Var)term2);
+        }
+        catch (Exception e) {}
+        try {
+            return Expression.evaluate((Var)term1, (LogicalOperator)op, (Var)term2);
+        }
+        catch (Exception e) {}
+        try {
+            return Expression.evaluate((Var)term1, (AssignmentOperator)op, (Var)term2);
+        }
+        catch (Exception e) {}
+        try {
+            return Expression.evaluate((Var)term1, (ComparisonOperator)op, (Var)term2);
+        }
+        catch (Exception e) {}
+        
+        throw new RuntimeException("Failed expression evaluation (term1: " + term1.getClass().getSimpleName() + " | op: " + op.getClass().getSimpleName() +" | term2: " + term2.getClass().getSimpleName() + ")");
+    }
+
     public static BoolVar evaluate(Var term1, ComparisonOperator op, Var term2) throws OperatorException {
         boolean res;
         switch (op) {
@@ -64,7 +115,7 @@ public abstract class Expression {
         }
     }
 
-    public static void evaluate(Var term1, AssignmentOperator op, Var term2) throws OperatorException {
+    public static Var evaluate(Var term1, AssignmentOperator op, Var term2) throws OperatorException {
         switch (op) {
             case ASSIGN :
                 term1.setData(term2.getData());
@@ -87,6 +138,8 @@ public abstract class Expression {
             default :
                 throw new OperatorException("Unexpected operator");
         }
+
+        return null;
     }
 
     public static Var evaluate(CastOperator op, Var term) throws OperatorException {

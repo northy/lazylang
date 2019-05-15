@@ -1,10 +1,32 @@
 import java.util.HashMap;
+
 import java.util.ArrayList;
 
 public class Parser{
 	//Métodos estáticos
-	public static Var toVar(String value, HashMap<String,Var> variables) {
-		return variables.get(value);
+	public static Var toVar(String value, HashMap<String,Var> variables) throws OperatorException {
+		if (variables.get(value) != null) return variables.get(value);
+		try {
+			//int
+			return new IntVar((int)Integer.valueOf(value));
+		}
+		catch (Exception e) {}
+		try {
+			//float
+			return new FloatVar((double)Double.valueOf(value));
+		}
+		catch (Exception e) {}
+		try {
+			//boolean
+			return new BoolVar(Boolean.parseBoolean(value));
+		}
+		catch (Exception e) {}
+		try {
+			//TODO: checar se está em aspas e retornar string
+		}
+		catch (Exception e) {}
+		
+		throw new OperatorException("Unable to transform \"" + value + "\" to a variable");
 	}
 
 	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables) {
@@ -22,11 +44,8 @@ public class Parser{
             c=exp.charAt(i);
             c1=exp.charAt(i+1);
 
-            if (c=='=' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || i==l-1) {
-				//TODO: terminar
-				System.out.println(parsing);
+            if (c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || i==l-1) {
                 if (i!=l-1) parsing=parsing.substring(0, parsing.length()-1);
-                System.out.println(parsing);
                 if (!parsing.equals("")) stack.add(Parser.toVar(parsing, variables));
 
                 if (c=='=' && c1=='=') {
@@ -38,8 +57,8 @@ public class Parser{
                     i++;
                 }
                 else if (c=='>' && c1=='=') {
-                    operator=ComparisonOperator.GE;
-                    i++;
+					operator=ComparisonOperator.GE;
+					i++;
                 }
                 else if (c=='!' && c1=='=') {
                     operator=ComparisonOperator.NE;
@@ -113,7 +132,36 @@ public class Parser{
         }
         
         return stack;
-    }
+	}
+	
+	public static void evaluateStackByPriority(ArrayList<Object> stack, HashMap<String,Var> variables) throws RuntimeException {
+		int i=0,l=stack.size();
+		ArrayList<Integer> lasti = new ArrayList<Integer>();
+		boolean rollback=false;
+
+		while (stack.size()!=1 && i<stack.size()) {
+			if (rollback) {
+				i=lasti.get(lasti.size()-1);
+				lasti.remove(lasti.size()-1);
+				rollback=false;
+			}
+
+			if (i<stack.size() && stack.get(i) instanceof Var && i+1<stack.size() &&stack.get(i+1) instanceof Enum && i+2<stack.size() && stack.get(i+2) instanceof Var) {
+				if (i+3<stack.size() && stack.get(i+3) instanceof Enum && i+4<stack.size() && stack.get(i+4) instanceof Var) {
+					if (Expression.compareOperators(stack.get(i+1),stack.get(i+3))<0) {
+						lasti.add(i);
+						i+=2;
+						continue;
+					}
+				}
+				Var res = Expression.evaluate(stack.get(i),stack.get(i+1),stack.get(i+2));
+				for (int j=0; j<3; ++j) stack.remove(i);
+				stack.add(i,res);
+				if (lasti.size()!=0) rollback=true;
+				continue;
+			}
+		}
+	}
 	
 	//Instanciação de variavel e atribuição de valor à mesma caso seja passado
 	private static void variableCreation(String type,String expression,HashMap<String,Var> variables){
