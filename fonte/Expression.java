@@ -51,6 +51,23 @@ public abstract class Expression {
         throw new RuntimeException("Failed expression evaluation (term1: " + term1.getClass().getSimpleName() + " | op: " + op.getClass().getSimpleName() +" | term2: " + term2.getClass().getSimpleName() + ")");
     }
 
+    public static Var evaluate(Object op, Object term) throws RuntimeException {
+        try {
+            return Expression.evaluate((ArithmeticOperator)op, (Var)term);
+        }
+        catch (Exception e) {}
+        try {
+            return Expression.evaluate((LogicalOperator)op, (Var)term);
+        }
+        catch (Exception e) {}
+        try {
+            return Expression.evaluate((CastOperator)op, (Var)term);
+        }
+        catch (Exception e) {}
+        
+        throw new RuntimeException("Failed expression evaluation (op: " + op.getClass().getSimpleName() +" | term: " + term.getClass().getSimpleName() + ")");
+    }
+
     public static BoolVar evaluate(Var term1, ComparisonOperator op, Var term2) throws OperatorException {
         boolean res;
         switch (op) {
@@ -94,6 +111,15 @@ public abstract class Expression {
             case NOT :
                 return new BoolVar("__tmp",term.lNot());
             default : //NOT
+                throw new OperatorException("Current operator is not expected in this this evaluation");
+        }
+    }
+
+    public static Var evaluate(ArithmeticOperator op, Var term) throws OperatorException {
+        switch (op) {
+            case SUB :
+                return term.mult(new IntVar(-1));
+            default :
                 throw new OperatorException("Current operator is not expected in this this evaluation");
         }
     }

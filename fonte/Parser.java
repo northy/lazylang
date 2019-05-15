@@ -25,7 +25,7 @@ public class Parser{
 			//TODO: checar se está em aspas e retornar string
 		}
 		catch (Exception e) {}
-		
+
 		throw new OperatorException("Unable to transform \"" + value + "\" to a variable");
 	}
 
@@ -45,8 +45,21 @@ public class Parser{
             c1=exp.charAt(i+1);
 
             if (c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || i==l-1) {
-                if (i!=l-1) parsing=parsing.substring(0, parsing.length()-1);
-                if (!parsing.equals("")) stack.add(Parser.toVar(parsing, variables));
+				if (i!=l-1) parsing=parsing.substring(0, parsing.length()-1);
+				//criação de variaveis
+				if (parsing.contains("int")) {
+					parsing=parsing.replaceAll("int", "");
+					variables.put(parsing, new IntVar(parsing));
+				}
+				else if (parsing.contains("float")) {
+					parsing=parsing.replaceAll("float", "");
+					variables.put(parsing, new FloatVar(parsing));
+				}
+				else if (parsing.contains("bool")) {
+					parsing=parsing.replaceAll("bool", "");
+					variables.put(parsing, new BoolVar(parsing));
+				}
+				if (!parsing.equals("")) stack.add(Parser.toVar(parsing, variables));
 
                 if (c=='=' && c1=='=') {
                     operator=ComparisonOperator.EQ;
@@ -72,7 +85,6 @@ public class Parser{
                 }
                 else if (c=='=') {
                     operator=AssignmentOperator.ASSIGN;
-                    i++;
                 }
                 else if (c=='+' && c1=='=') {
                     operator=AssignmentOperator.ADD_ASSIGN;
@@ -134,10 +146,10 @@ public class Parser{
         return stack;
 	}
 	
-	public static void evaluateStackByPriority(ArrayList<Object> stack, HashMap<String,Var> variables) throws RuntimeException {
-		int i=0,l=stack.size();
+	public static Var evaluateStackByPriority(ArrayList<Object> stack, HashMap<String,Var> variables) throws RuntimeException {
+		int i=0;
 		ArrayList<Integer> lasti = new ArrayList<Integer>();
-		boolean rollback=false;
+		boolean rollback=false, debugging=true;
 
 		while (stack.size()!=1 && i<stack.size()) {
 			if (rollback) {
@@ -146,8 +158,50 @@ public class Parser{
 				rollback=false;
 			}
 
-			if (i<stack.size() && stack.get(i) instanceof Var && i+1<stack.size() &&stack.get(i+1) instanceof Enum && i+2<stack.size() && stack.get(i+2) instanceof Var) {
+			//for debugging purposes
+			if (debugging) {
+				for (int j=0; j<stack.size(); ++j) {
+					if (stack.get(j) instanceof Var) {
+						System.out.print("Stack[" + j + "]: ");
+						((Var)stack.get(j)).print();
+					}
+					else {
+						System.out.println("Stack[" + j + "]: " + stack.get(j).getClass().getSimpleName());
+					}
+				}
+				System.out.println();
+			}
+
+			//!b, int a
+			if (i<stack.size() && stack.get(i) instanceof Enum && i+1<stack.size() && stack.get(i+1) instanceof Var) {
+				Var res = Expression.evaluate(stack.get(i),stack.get(i+1));
+				if (stack.get(i) instanceof CreationOperator) {
+
+				}
+				for (int j=0; j<2; ++j) stack.remove(i);
+				stack.add(i,res);
+				if (lasti.size()!=0) rollback=true;
+				continue;
+			}
+			//a&&!c
+			if (i<stack.size() && stack.get(i) instanceof Var && i+1<stack.size() && stack.get(i+1) instanceof Enum && i+2<stack.size() && stack.get(i+2) instanceof Enum && i+3<stack.size() && stack.get(i+3) instanceof Var) {
+				lasti.add(i);
+				i+=2;
+				continue;
+			}
+			//a+b
+			if (i<stack.size() && stack.get(i) instanceof Var && i+1<stack.size() && stack.get(i+1) instanceof Enum && i+2<stack.size() && stack.get(i+2) instanceof Var) {
+				//a+b*c
 				if (i+3<stack.size() && stack.get(i+3) instanceof Enum && i+4<stack.size() && stack.get(i+4) instanceof Var) {
+					System.out.println("x");
+					if (Expression.compareOperators(stack.get(i+1),stack.get(i+3))<0) {
+						lasti.add(i);
+						i+=2;
+						continue;
+					}
+				}
+				//a||b&&!c
+				if (i+3<stack.size() && stack.get(i+3) instanceof Enum && i+4<stack.size() && stack.get(i+4) instanceof Enum && stack.get(i+5) instanceof Var) {
 					if (Expression.compareOperators(stack.get(i+1),stack.get(i+3))<0) {
 						lasti.add(i);
 						i+=2;
@@ -161,12 +215,14 @@ public class Parser{
 				continue;
 			}
 		}
+
+		return (Var)stack.get(0);
 	}
 	
 	//Instanciação de variavel e atribuição de valor à mesma caso seja passado
 	private static void variableCreation(String type,String expression,HashMap<String,Var> variables){
 		String varName = "",value = "";
-		int init = 0,selectionType = 0,control; 
+		int init = 0,selectionType = 0,control;
 		
 		//Verifica qual o tipo primitivo	
 		//Type Int
