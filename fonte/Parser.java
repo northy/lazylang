@@ -21,19 +21,37 @@ public class Parser{
 	public void parse(String str, HashMap<String,Var> variables) {
 		str=str.replaceAll("\\s+(?=((\\[\\\"]|[^\\\"])*\"(\\[\\\"]|[^\\\"])*\")*(\\[\\\"]|[^\\\"])*$)", "");
 		for (char c : str.toCharArray()) {
-			if (c!=';') {
+			if (c!=';' && c!='}') {
 				curString+=c;
 			}
 			else {
-				ArrayList<Object> stack = Parser.expressionStack(curString, variables);
-				Var ret = Parser.evaluateStackByPriority(stack, variables);
-				if (this.shellMode && ret instanceof Var) System.out.println(ret.getData()); 
-				curString="";
+				ArrayList<Object> stack=null;
+				Var ret=null;
+				try {
+					stack = Parser.expressionStack(curString, variables);
+					ret = Parser.evaluateStackByPriority(stack, variables);
+				}
+				catch (Exception e) {
+					System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
+					if (!this.shellMode) {
+						System.exit(1);
+					}
+				}
+				finally {
+					if (this.shellMode && ret instanceof Var) System.out.println(ret.getData()); 
+					curString="";
+					Main.shellPrefix="Prelude>";
+				}
 			}
 		}
+		if(!(curString.equals(""))) Main.shellPrefix="...";
 	}
 
 	//Métodos estáticos
+	public static int countStringOcurrences(String s, String f) {
+		return s.length()-s.replace(f, "").length();
+	}
+
 	public static Var toVar(String value, HashMap<String,Var> variables) throws RuntimeException {
 		if (variables.get(value) instanceof Var) return variables.get(value);
 		try {
@@ -53,7 +71,7 @@ public class Parser{
 		}
 		catch (Exception e) {}
 
-		if (value.contains(".")) {
+		if (value.contains(".") && !(Character.isDigit(value.charAt(value.indexOf('.')-1)))) {
 			//x.y()
 			String name="", function="";
 			Var object;
@@ -74,7 +92,7 @@ public class Parser{
 			i++;
 			while (i<value.length() && value.charAt(i)!=')') {
 				name+=value.charAt(i);
-				if (value.charAt(i+1)==',' || value.charAt(i+1)==')') {
+				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(value, "(")==Parser.countStringOcurrences(value, ")"))) {
 					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables), variables));
 					name="";
 					i++;
@@ -143,7 +161,7 @@ public class Parser{
 			i++;
 			while (i<value.length() && value.charAt(i)!=')') {
 				name+=value.charAt(i);
-				if (value.charAt(i+1)==',' || value.charAt(i+1)==')') {
+				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(value, "(")==Parser.countStringOcurrences(value, ")"))) {
 					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables), variables));
 					name="";
 					i++;
@@ -175,13 +193,22 @@ public class Parser{
 				if (s.hasNextLine()) r.setData(s.nextLine());
 				return r;
 			}
+			if (function.equals("int")) {
+				return Expression.evaluate(CastOperator.INT,parameters.get(0));
+			}
+			if (function.equals("float")) {
+				return Expression.evaluate(CastOperator.FLOAT,parameters.get(0));
+			}
+			if (function.equals("bool")) {
+				return Expression.evaluate(CastOperator.BOOL,parameters.get(0));
+			}
 			return null;
 		}
 
 		throw new OperatorException("Unable to transform \"" + value + "\" to a variable");
 	}
 
-	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables) {
+	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables) throws RuntimeException{
         int l = exp.length(), i=0;
         Object operator;
         exp+=" "; //Evitar NullPointerException
@@ -197,23 +224,26 @@ public class Parser{
             c1=exp.charAt(i+1);
 
             if (c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || i==l-1) {
-				if (parsing.length()-parsing.replace("(", "").length()!=parsing.length()-parsing.replace(")", "").length()) {
+				if (Parser.countStringOcurrences(parsing, "(")!=Parser.countStringOcurrences(parsing, ")")) {
 					//Same number of open and closed parenthesis
 					i++;
 					continue;
 				}
 				if (i!=l-1) parsing=parsing.substring(0, parsing.length()-1);
 				//criação de variaveis
-				if (parsing.startsWith("int")) {
+				if (parsing.startsWith("int") && parsing.charAt(3)!='(') {
 					parsing=parsing.replaceFirst("int", "");
+					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new IntVar(parsing));
 				}
-				else if (parsing.startsWith("float")) {
+				else if (parsing.startsWith("float") && parsing.charAt(5)!='(') {
 					parsing=parsing.replaceFirst("float", "");
+					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new FloatVar(parsing));
 				}
-				else if (parsing.startsWith("bool")) {
+				else if (parsing.startsWith("bool") && parsing.charAt(4)!='(') {
 					parsing=parsing.replaceFirst("bool", "");
+					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new BoolVar(parsing));
 				}
 				else if (parsing.contains("vector")) {
