@@ -1,12 +1,12 @@
 import java.util.HashMap;
 import java.util.Scanner;
-
 import java.util.ArrayList;
 
 public class Parser{
 	//Atributos
 	String curString;
 	boolean shellMode;
+	static int tempCount=0;
 
 	//Construtor
 	public Parser() {
@@ -19,6 +19,8 @@ public class Parser{
 
 	//Métodos
 	public void parse(String str, HashMap<String,Var> variables) {
+		boolean debugging=true;
+
 		str=str.replaceAll("\\s+(?=((\\[\\\"]|[^\\\"])*\"(\\[\\\"]|[^\\\"])*\")*(\\[\\\"]|[^\\\"])*$)", "");
 		for (char c : str.toCharArray()) {
 			if (c!=';' && c!='}') {
@@ -33,6 +35,7 @@ public class Parser{
 				}
 				catch (Exception e) {
 					System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
+					if (debugging) e.printStackTrace();
 					if (!this.shellMode) {
 						System.exit(1);
 					}
@@ -41,6 +44,7 @@ public class Parser{
 					if (this.shellMode && ret instanceof Var) System.out.println(ret.getData()); 
 					curString="";
 					Main.shellPrefix="Prelude>";
+					Parser.tempCount=0;
 				}
 			}
 		}
@@ -130,25 +134,8 @@ public class Parser{
 
 			return null;
 		}
-		
-		if (value.contains("[") && value.contains("]")) {
-			//vector position
-			String name="",index="";
-			for (int i=0; i<value.length(); ++i) {
-				if (value.charAt(i)!='[') name+=value.charAt(i);
-				else {
-					int j = i+1;
-					while (value.charAt(j)!=']') {
-						index+=value.charAt(j);
-						++j;
-					}
-					break;
-				}
-			}
-			return ((Vector)variables.get(name)).get(Integer.parseInt(index));
-		}
 
-		if (value.contains("(") && value.contains(")")) {
+		if (value.contains("(") && value.contains(")") && Character.isAlphabetic(value.charAt(value.indexOf('(')-1))) {
 			//x()
 			String name="", function="";
 			ArrayList<Var> parameters = new ArrayList<Var>();
@@ -204,32 +191,74 @@ public class Parser{
 			}
 			return null;
 		}
+		
+		if (value.contains("[") && value.contains("]") && Character.isAlphabetic(value.charAt(value.indexOf('[')-1))) {
+			//vector position
+			String name="",index="";
+			for (int i=0; i<value.length(); ++i) {
+				if (value.charAt(i)!='[') name+=value.charAt(i);
+				else {
+					int j = i+1;
+					while (value.charAt(j)!=']') {
+						index+=value.charAt(j);
+						++j;
+					}
+					break;
+				}
+			}
+			return ((Vector)variables.get(name)).get(Integer.parseInt(index));
+		}
 
 		throw new OperatorException("Unable to transform \"" + value + "\" to a variable");
 	}
 
 	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables) throws RuntimeException{
-        int l = exp.length(), i=0;
+		int i=0;
         Object operator;
         exp+=" "; //Evitar NullPointerException
         ArrayList<Object> stack = new ArrayList<Object>();
         String parsing="";
         char c,c1;
 
-        while (i<l) {
+        while (i<exp.length()-1) {
             parsing+=exp.charAt(i);
             
             operator=null;
             c=exp.charAt(i);
             c1=exp.charAt(i+1);
 
-            if (c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || i==l-1) {
+            if (c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || i==exp.length()-2) {
 				if (Parser.countStringOcurrences(parsing, "(")!=Parser.countStringOcurrences(parsing, ")")) {
 					//Same number of open and closed parenthesis
 					i++;
 					continue;
 				}
-				if (i!=l-1) parsing=parsing.substring(0, parsing.length()-1);
+				if (i!=exp.length()-2 && c!='(' && c!=')') parsing=parsing.substring(0, parsing.length()-1);
+				if (parsing.contains("(") && (parsing.indexOf('(')-1<0 || Character.isAlphabetic(parsing.charAt(parsing.indexOf('(')-1)))) {
+					//Evaluate parenthesis first;
+					String tmpName;
+					int j=parsing.indexOf('('), oldJ;
+					ArrayList<Integer> parenthesisIndexes = new ArrayList<Integer>();
+					parenthesisIndexes.add(j);
+
+					while (parenthesisIndexes.size()!=0) {
+						j++;
+						if (parsing.charAt(j)=='(') {
+							parenthesisIndexes.add(j);
+							continue;
+						}
+						if (parsing.charAt(j)==')') {
+							oldJ=parenthesisIndexes.remove(parenthesisIndexes.size()-1);
+							if (oldJ-1>=0 && Character.isAlphabetic(parsing.charAt(oldJ-1))) continue;
+							else {
+								tmpName="__tmp"+tempCount++;
+								variables.put(tmpName, Parser.evaluateStackByPriority(Parser.expressionStack((String)parsing.subSequence(oldJ+1, j), variables), variables));
+								StringBuffer buff = new StringBuffer(parsing).replace(oldJ, j+1,tmpName);
+								parsing=buff.toString();
+							}
+						}
+					}
+				}
 				//criação de variaveis
 				if (parsing.startsWith("int") && parsing.charAt(3)!='(') {
 					parsing=parsing.replaceFirst("int", "");
@@ -332,7 +361,8 @@ public class Parser{
 
             i++;
         }
-        
+		
+		if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
         return stack;
 	}
 	
