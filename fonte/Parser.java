@@ -72,6 +72,10 @@ public class Parser{
 		if (value.equals("true") || value.equals("false"))return new BoolVar(Boolean.parseBoolean(value));
 		try {
 			//TODO: checar se está em aspas e retornar string
+			if(value.charAt(0) == '\"' && value.charAt(value.length() - 1) == '\"'){
+				
+				return new StrVar("__tmp",value.substring(1,value.length() - 1));
+			}
 		}
 		catch (Exception e) {}
 
@@ -189,6 +193,9 @@ public class Parser{
 			if (function.equals("bool")) {
 				return Expression.evaluate(CastOperator.BOOL,parameters.get(0));
 			}
+			if(function.equals("str")) {
+				return new StrVar("__tmp",parameters.get(0).toString());
+			}
 			return null;
 		}
 		
@@ -274,6 +281,11 @@ public class Parser{
 					parsing=parsing.replaceFirst("bool", "");
 					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new BoolVar(parsing));
+				}
+				else if (parsing.startsWith("str") && parsing.charAt(3)!='(') {
+					parsing=parsing.replaceFirst("str", "");
+					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
+					variables.put(parsing, new StrVar(parsing));
 				}
 				else if (parsing.contains("vector")) {
 					parsing=parsing.replaceAll("vector", "");
