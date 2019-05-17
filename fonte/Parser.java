@@ -78,7 +78,12 @@ public class Parser{
 			}
 		}
 		catch (Exception e) {}
-
+		try{
+			if(value.charAt(0) == '\'' && value.charAt(value.length()-1) == '\''){
+				return new CharVar(value.charAt(1));
+			}
+		}
+		catch (Exception e) {}
 		if (value.contains(".") && !(Character.isDigit(value.charAt(value.indexOf('.')-1)))) {
 			//x.y()
 			String name="", function="";
@@ -193,6 +198,13 @@ public class Parser{
 			if (function.equals("bool")) {
 				return Expression.evaluate(CastOperator.BOOL,parameters.get(0));
 			}
+			if (function.equals("char")){
+				Character tmp;
+				String _tmp;
+				_tmp = parameters.get(0).toString();
+				tmp = _tmp.charAt(0);
+				return new CharVar((tmp));
+			}
 			if(function.equals("str")) {
 				return new StrVar("__tmp",parameters.get(0).toString());
 			}
@@ -241,7 +253,7 @@ public class Parser{
 					continue;
 				}
 				if (i!=exp.length()-2 && c!='(' && c!=')') parsing=parsing.substring(0, parsing.length()-1);
-				if (parsing.contains("(") && (parsing.indexOf('(')-1<0 || Character.isAlphabetic(parsing.charAt(parsing.indexOf('(')-1)))) {
+				if (parsing.contains("(") && (parsing.indexOf('(')-1<0 || Character.isAlphabetic(parsing.charAt(parsing.indexOf('(')-1)))&&parsing.charAt(0)!='\"') {
 					//Evaluate parenthesis first;
 					String tmpName;
 					int j=parsing.indexOf('('), oldJ;
@@ -281,6 +293,12 @@ public class Parser{
 					parsing=parsing.replaceFirst("bool", "");
 					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new BoolVar(parsing));
+				}
+
+				else if (parsing.contains("char") && parsing.charAt(4) != '(') {
+					parsing = parsing.replaceFirst("char","");
+					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
+					variables.put(parsing, new CharVar(parsing));
 				}
 				else if (parsing.startsWith("str") && parsing.charAt(3)!='(') {
 					parsing=parsing.replaceFirst("str", "");
