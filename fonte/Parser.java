@@ -23,7 +23,7 @@ public class Parser{
 
 		str=str.replaceAll("\\s+(?=((\\[\\\"]|[^\\\"])*\"(\\[\\\"]|[^\\\"])*\")*(\\[\\\"]|[^\\\"])*$)", "");
 		for (char c : str.toCharArray()) {
-			if (c!=';' && c!='}') {
+			if (c != ';' && c != '}' ){
 				curString+=c;
 			}
 			else {
@@ -261,6 +261,7 @@ public class Parser{
 	}
 
 	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables) throws RuntimeException{
+		System.out.println(exp);
 		int i=0;
         Object operator;
         exp+=" "; //Evitar NullPointerException
