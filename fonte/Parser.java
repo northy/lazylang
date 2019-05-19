@@ -5,12 +5,17 @@ import java.util.ArrayList;
 public class Parser{
 	//Atributos
 	String curString;
+	ArrayList<Object> curArray;
 	boolean shellMode;
+	int depth, lastIfResult;
 	static int tempCount=0;
 
 	//Construtor
 	public Parser() {
+		lastIfResult=-1;
 		curString = "";
+		depth=0;
+		curArray=new ArrayList<Object>();
 	}
 	public Parser(boolean s) {
 		this();
@@ -20,35 +25,246 @@ public class Parser{
 	//Métodos
 	public void parse(String str, HashMap<String,Var> variables) {
 		boolean debugging=true;
+		int i;
+		String tmp = "";
+		ArrayList<Object> tmpArray = new ArrayList<Object>();
+		ArrayList<Object> tmpArray2 = new ArrayList<Object>();
 
 		str=str.replaceAll("\\s+(?=((\\[\\\"]|[^\\\"])*\"(\\[\\\"]|[^\\\"])*\")*(\\[\\\"]|[^\\\"])*$)", "");
+		str=str.trim();
 		for (char c : str.toCharArray()) {
-			if (c!=';' && c!='}') {
+			if (c!=';' && c!='{' && c!='}') {
 				curString+=c;
 			}
 			else {
-				ArrayList<Object> stack=null;
-				Var ret=null;
-				try {
-					stack = Parser.expressionStack(curString, variables);
-					ret = Parser.evaluateStackByPriority(stack, variables);
+				if (c==';' && curString.startsWith("for")) {
+					curString+=';';
+					continue;
 				}
-				catch (Exception e) {
-					System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
-					if (debugging) e.printStackTrace();
-					if (!this.shellMode) {
-						System.exit(1);
+				if (curString.startsWith("if")) {
+					tmpArray.add("if");
+					depth++;
+					i=3;
+					while (curString.charAt(i) != ')') {
+						tmp+=str.charAt(i);
+						i++;
+					}
+					curString=curString.replace(curString.subSequence(0,i+1),"");
+					tmpArray.add(tmp);
+					if (depth==1) curArray=tmpArray;
+					else {
+						tmpArray2=curArray;
+						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
+						tmpArray2.add(tmpArray);
+					}
+					tmpArray = new ArrayList<Object>();
+					tmpArray2 = new ArrayList<Object>();
+				}
+				if (curString.startsWith("elif")) {
+					tmpArray.add("elif");
+					depth++;
+					i=5;
+					while (curString.charAt(i) != ')') {
+						tmp+=str.charAt(i);
+						i++;
+					}
+					curString=curString.replace(curString.subSequence(0,i+1),"");
+					tmpArray.add(tmp);
+					if (depth==1) curArray=tmpArray;
+					else {
+						tmpArray2=curArray;
+						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
+						tmpArray2.add(tmpArray);
+					}
+					tmpArray = new ArrayList<Object>();
+					tmpArray2 = new ArrayList<Object>();
+				}
+				if (curString.startsWith("else")) {
+					tmpArray.add("else");
+					depth++;
+					i=4;
+					curString=curString.replace(curString.subSequence(0,i),"");
+					if (depth==1) curArray=tmpArray;
+					else {
+						tmpArray2=curArray;
+						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
+						tmpArray2.add(tmpArray);
+					}
+					tmpArray = new ArrayList<Object>();
+					tmpArray2 = new ArrayList<Object>();
+				}
+				else if (curString.startsWith("while")) {
+					lastIfResult=-1;
+					tmpArray.add("while");
+					depth++;
+					i=6;
+					while (curString.charAt(i) != ')') {
+						tmp+=str.charAt(i);
+						i++;
+					}
+					curString=curString.replace(curString.subSequence(0,i+1),"");
+					tmpArray.add(tmp);
+					if (depth==1) curArray=tmpArray;
+					else {
+						tmpArray2=curArray;
+						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
+						tmpArray2.add(tmpArray);
+					}
+					tmpArray = new ArrayList<Object>();
+					tmpArray2 = new ArrayList<Object>();
+				}
+				else if (curString.startsWith("for")) {
+					lastIfResult=-1;
+					tmpArray.add("for");
+					depth++;
+					i=4;
+					while (curString.charAt(i) != ')') {
+						if (curString.charAt(i)==';') {
+							tmpArray.add(tmp);
+							tmp="";
+						}
+						else {
+							tmp+=str.charAt(i);
+						}
+						i++;
+					}
+					tmpArray.add(tmp);
+					curString=curString.replace(curString.subSequence(0,i+1),"");
+					if (depth==1) curArray=tmpArray;
+					else {
+						tmpArray2=curArray;
+						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
+						tmpArray2.add(tmpArray);
+					}
+					tmpArray = new ArrayList<Object>();
+					tmpArray2 = new ArrayList<Object>();
+				}
+				else if (depth!=0 && c==';') {
+					tmpArray=curArray;
+					for (i=0; i<depth-1; ++i) tmpArray=((ArrayList<Object>)tmpArray.get(tmpArray.size()-1));
+					tmpArray.add(curString);
+					curString="";
+				}
+				else if (depth==1 && c=='}') {
+					this.parseBlock(curArray, variables);
+					curArray=new ArrayList<Object>();
+				}
+				else if (curArray.size()==0) {
+					lastIfResult=-1;
+					Var ret=null;
+					try {
+						ret = Parser.evaluateStackByPriority(Parser.expressionStack(curString,variables), variables);
+					}
+					catch (Exception e) {
+						System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
+						if (debugging) e.printStackTrace();
+						if (!this.shellMode) {
+							System.exit(1);
+						}
+					}
+					finally {
+						if (this.shellMode && ret instanceof Var) System.out.println(ret.getData()); 
+						curString="";
 					}
 				}
-				finally {
-					if (this.shellMode && ret instanceof Var) System.out.println(ret.getData()); 
-					curString="";
-					Main.shellPrefix="Prelude>";
-					Parser.tempCount=0;
+				if (c=='}') depth=Math.max(0,depth-1);
+			}
+		}
+		if(!(curString.equals("")) || curArray.size()!=0) Main.shellPrefix="...";
+		else Main.shellPrefix="Prelude>";
+	}
+
+	public void parseBlock(ArrayList<Object> o, HashMap<String, Var> variables) throws RuntimeException {
+		Var v;
+		int tmp;
+
+		if (o.get(0).equals("if")) {
+			v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
+			if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) {
+				lastIfResult=0;
+				return;
+			}
+			for (int i=2; i<o.size(); ++i) {
+				if (o.get(i) instanceof ArrayList<?>) {
+					tmp=lastIfResult;
+					lastIfResult=-1;
+					parseBlock((ArrayList<Object>)o.get(i),variables);
+					lastIfResult=tmp;
+				}
+				else {
+					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+				}
+			}
+			lastIfResult=1;
+		}
+		else if (o.get(0).equals("elif")) {
+			if (lastIfResult==-1) throw new RuntimeException("Don't use elif block without an if block");
+			if (lastIfResult==1) return;
+			v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
+			if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) {
+				lastIfResult=0;
+				return;
+			}
+			for (int i=2; i<o.size(); ++i) {
+				if (o.get(i) instanceof ArrayList<?>) {
+					tmp=lastIfResult;
+					lastIfResult=-1;
+					parseBlock((ArrayList<Object>)o.get(i),variables);
+					lastIfResult=tmp;
+				}
+				else {
+					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+				}
+			}
+			lastIfResult=1;
+		}
+		else if (o.get(0).equals("else")) {
+			if (lastIfResult==-1) throw new RuntimeException("Don't use else block without an if block");
+			if (lastIfResult==1) {lastIfResult=-1; return;}
+			for (int i=1; i<o.size(); ++i) {
+				if (o.get(i) instanceof ArrayList<?>) {
+					parseBlock((ArrayList<Object>)o.get(i),variables);
+				}
+				else {
+					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+				}
+			}
+			lastIfResult=-1;
+		}
+		else if (o.get(0).equals("while")) {
+			for (;;) {
+				v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
+				if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) break;
+				for (int i=2; i<o.size(); ++i) {
+					if (o.get(i) instanceof ArrayList<?>) {
+						parseBlock((ArrayList<Object>)o.get(i),variables);
+					}
+					else {
+						Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+					}
 				}
 			}
 		}
-		if(!(curString.equals(""))) Main.shellPrefix="...";
+		else if (o.get(0).equals("for")) {
+			if (o.size()<4) throw new RuntimeException("Insuficient arguments for 'for' block");
+			Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
+			for (;;) {
+				v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(2), variables),variables);
+				if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) break;
+				for (int i=4; i<o.size(); ++i) {
+					if (o.get(i) instanceof ArrayList<?>) {
+						parseBlock((ArrayList<Object>)o.get(i),variables);
+					}
+					else {
+						Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+					}
+				}
+				Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(3), variables),variables);
+			}
+		}
+		else {
+			throw new RuntimeException("Unknown block type: " + o.get(0));
+		}
 	}
 
 	//Métodos estáticos
