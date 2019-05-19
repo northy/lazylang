@@ -88,6 +88,15 @@ public class Parser{
 			return new StrVar("__tmp",value.substring(1,value.length()-1));
 		}
 		catch (Exception e) {}
+<<<<<<< HEAD
+=======
+		try{
+			if(value.charAt(0) == '\'' && value.charAt(value.length()-1) == '\''){
+				return new CharVar(value.charAt(1));
+			}
+		}
+		catch (Exception e) {}
+>>>>>>> f7e36d9ec4232dbd599643acf9531e7006fab091
 		if (value.contains(".") && !(Character.isDigit(value.charAt(value.indexOf('.')-1)))) {
 			//x.y()
 			String name="", function="";
@@ -202,6 +211,13 @@ public class Parser{
 			if (function.equals("bool")) {
 				return Expression.evaluate(CastOperator.BOOL,parameters.get(0));
 			}
+			if (function.equals("char")){
+				Character tmp;
+				String _tmp;
+				_tmp = parameters.get(0).toString();
+				tmp = _tmp.charAt(0);
+				return new CharVar((tmp));
+			}
 			if(function.equals("str")) {
 				return new StrVar("__tmp",parameters.get(0).toString());
 			}
@@ -304,7 +320,17 @@ public class Parser{
 					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new BoolVar(parsing));
 				}
+<<<<<<< HEAD
 				else if (parsing.startsWith("str") && parsing.charAt(3) != '(') {
+=======
+
+				else if (parsing.contains("char") && parsing.charAt(4) != '(') {
+					parsing = parsing.replaceFirst("char","");
+					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
+					variables.put(parsing, new CharVar(parsing));
+				}
+				else if (parsing.startsWith("str") && parsing.charAt(3)!='(') {
+>>>>>>> f7e36d9ec4232dbd599643acf9531e7006fab091
 					parsing=parsing.replaceFirst("str", "");
 					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new StrVar(parsing));
