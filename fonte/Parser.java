@@ -103,10 +103,14 @@ public class Parser{
 		catch (Exception e) {}
 		//boolean
 		if (value.equals("true") || value.equals("false"))return new BoolVar(Boolean.parseBoolean(value));
+		//string
 		try {
-			return new StrVar("__tmp",value.substring(1,value.length()-1));
+			if(value.charAt(0) == '\"' && value.charAt(value.length()-1) == '\"'){
+				return new StrVar("__tmp",value.substring(1,value.length()-1));
+			}
 		}
 		catch (Exception e) {}
+		//char
 		try{
 			if(value.charAt(0) == '\'' && value.charAt(value.length()-1) == '\''){
 				return new CharVar(value.charAt(1));
