@@ -38,7 +38,7 @@ class Main {
             for (;;) {
                 System.out.print(Main.shellPrefix + " ");
                 line=s.nextLine();
-                if (line.equals("q")) break;
+                if (line.equals(":q")) break;
                 p.parse(line,vars);
             }
             s.close();
