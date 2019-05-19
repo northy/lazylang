@@ -94,7 +94,6 @@ public class Parser{
 					tmpArray2 = new ArrayList<Object>();
 				}
 				else if (curString.startsWith("while")) {
-					lastIfResult=-1;
 					tmpArray.add("while");
 					depth++;
 					i=6;
@@ -114,7 +113,6 @@ public class Parser{
 					tmpArray2 = new ArrayList<Object>();
 				}
 				else if (curString.startsWith("for")) {
-					lastIfResult=-1;
 					tmpArray.add("for");
 					depth++;
 					i=4;
@@ -176,7 +174,6 @@ public class Parser{
 
 	public void parseBlock(ArrayList<Object> o, HashMap<String, Var> variables) throws RuntimeException {
 		Var v;
-		int tmp;
 
 		if (o.get(0).equals("if")) {
 			v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
@@ -184,12 +181,10 @@ public class Parser{
 				lastIfResult=0;
 				return;
 			}
+			lastIfResult=-1;
 			for (int i=2; i<o.size(); ++i) {
 				if (o.get(i) instanceof ArrayList<?>) {
-					tmp=lastIfResult;
-					lastIfResult=-1;
 					parseBlock((ArrayList<Object>)o.get(i),variables);
-					lastIfResult=tmp;
 				}
 				else {
 					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
@@ -205,12 +200,10 @@ public class Parser{
 				lastIfResult=0;
 				return;
 			}
+			lastIfResult=-1;
 			for (int i=2; i<o.size(); ++i) {
 				if (o.get(i) instanceof ArrayList<?>) {
-					tmp=lastIfResult;
-					lastIfResult=-1;
 					parseBlock((ArrayList<Object>)o.get(i),variables);
-					lastIfResult=tmp;
 				}
 				else {
 					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
@@ -221,6 +214,7 @@ public class Parser{
 		else if (o.get(0).equals("else")) {
 			if (lastIfResult==-1) throw new RuntimeException("Don't use else block without an if block");
 			if (lastIfResult==1) {lastIfResult=-1; return;}
+			lastIfResult=-1;
 			for (int i=1; i<o.size(); ++i) {
 				if (o.get(i) instanceof ArrayList<?>) {
 					parseBlock((ArrayList<Object>)o.get(i),variables);
@@ -232,6 +226,7 @@ public class Parser{
 			lastIfResult=-1;
 		}
 		else if (o.get(0).equals("while")) {
+			lastIfResult=-1;
 			for (;;) {
 				v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
 				if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) break;
@@ -246,6 +241,7 @@ public class Parser{
 			}
 		}
 		else if (o.get(0).equals("for")) {
+			lastIfResult=-1;
 			if (o.size()<4) throw new RuntimeException("Insuficient arguments for 'for' block");
 			Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
 			for (;;) {
@@ -436,6 +432,36 @@ public class Parser{
 				Scanner s = new Scanner(System.in);
 				StrVar r = new StrVar();
 				if (s.hasNextLine()) r.setData(s.nextLine());
+				return r;
+			}
+			if (function.equals("readInt")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				Scanner s = new Scanner(System.in);
+				IntVar r = new IntVar();
+				if (s.hasNextLine()) r.setData(s.nextInt());
+				return r;
+			}
+			if (function.equals("readFloat")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				Scanner s = new Scanner(System.in);
+				FloatVar r = new FloatVar();
+				if (s.hasNextLine()) r.setData(s.nextFloat());
+				return r;
+			}
+			if (function.equals("readBool")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				Scanner s = new Scanner(System.in);
+				BoolVar r = new BoolVar();
+				if (s.hasNextLine()) r.setData(s.nextBoolean());
 				return r;
 			}
 			if (function.equals("int")) {
