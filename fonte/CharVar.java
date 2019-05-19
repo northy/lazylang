@@ -18,7 +18,7 @@ public class CharVar extends Var {
     }
 
     public CharVar(Character data) {
-        this("__tmp",data);
+       this("__tmp",data);
     }
 
     //getters
