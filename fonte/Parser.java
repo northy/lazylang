@@ -438,6 +438,36 @@ public class Parser{
 				if (s.hasNextLine()) r.setData(s.nextLine());
 				return r;
 			}
+			if (function.equals("readInt")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				Scanner s = new Scanner(System.in);
+				IntVar r = new IntVar();
+				if (s.hasNextLine()) r.setData(s.nextInt());
+				return r;
+			}
+			if (function.equals("readFloat")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				Scanner s = new Scanner(System.in);
+				FloatVar r = new FloatVar();
+				if (s.hasNextLine()) r.setData(s.nextFloat());
+				return r;
+			}
+			if (function.equals("readBool")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				Scanner s = new Scanner(System.in);
+				BoolVar r = new BoolVar();
+				if (s.hasNextLine()) r.setData(s.nextBoolean());
+				return r;
+			}
 			if (function.equals("int")) {
 				return Expression.evaluate(CastOperator.INT,parameters.get(0));
 			}
