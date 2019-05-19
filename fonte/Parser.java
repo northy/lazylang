@@ -482,12 +482,18 @@ public class Parser{
 
 	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables) throws RuntimeException{
 		int i=0;
-        Object operator;
+        Object operator;	 
         exp+=" "; //Evitar NullPointerException
         ArrayList<Object> stack = new ArrayList<Object>();
         String parsing="",type = "";
         char c,c1;
         boolean isString = false;
+		
+		//Quando o println/print chamam o expressionStack
+		if(exp.charAt(0) == '\"'){
+			stack.add(new StrVar("__tmp",exp.substring(1,exp.length()-2)));
+			return stack;
+		}      
 
         while (i < exp.length()-1) {
            	parsing += exp.charAt(i);
@@ -503,17 +509,17 @@ public class Parser{
             		isString = false;
             	}
             }
- 			else if(c == '\"'){
+ 			else if(c == '\"' && i > 0 && exp.charAt(i -1) != '(' && exp.charAt(i +1) != ')'){
  				isString = true;
  			}
-
             else if (c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || c==',' || i==exp.length()-2) {
-				
-				if ((Parser.countStringOcurrences(parsing, "(") != Parser.countStringOcurrences(parsing, ")")) && c1 != '\"') {
+								
+				if ((Parser.countStringOcurrences(parsing, "(") != Parser.countStringOcurrences(parsing, ")"))) {
 					//Same number of open and closed parenthesis
 					i++;
 					continue;
 				}
+
 				if (i != exp.length() -2 && c != '(' && c != ')') parsing = parsing.substring(0, parsing.length()-1);
 				if (parsing.contains("(") && (parsing.indexOf("(") -1 < 0 || Character.isAlphabetic(parsing.charAt(parsing.indexOf("(") -1)))) {
 					//Evaluate parenthesis first;
@@ -522,9 +528,9 @@ public class Parser{
 					ArrayList<Integer> parenthesisIndexes = new ArrayList<Integer>();
 					parenthesisIndexes.add(j);
 
-					while (parenthesisIndexes.size()!=0) {
+					while (parenthesisIndexes.size() != 0) {
 						j++;
-						if (parsing.charAt(j)=='(') {
+						if (parsing.charAt(j) == '(') {
 							parenthesisIndexes.add(j);
 							continue;
 						}
@@ -664,7 +670,6 @@ public class Parser{
             }
             i++;
         }
-		
 		if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
         return stack;
 	}
