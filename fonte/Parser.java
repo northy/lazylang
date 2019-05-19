@@ -56,18 +56,37 @@ public class Parser{
 		return s.length()-s.replace(f, "").length();
 	}
 
-	//Verefica se uma uma determinada sequência é string
-	public static boolean isString(String str){
-		int marks = 0;
-		for(int i = 0; i < str.length() - 1; i++){
-			if(str.charAt(i) == '\"'){
-				marks++;
-			}
-		}
-		if(marks % 2 == 0 && marks != 0){
-			return true;
-		}
-		return false;
+	public static boolean isOperator(Object value){
+		ArrayList<Object> vectorOfOperators = new ArrayList<Object>();
+
+        vectorOfOperators.add(ArithmeticOperator.MOD);
+        vectorOfOperators.add(ArithmeticOperator.DIV);
+        vectorOfOperators.add(ArithmeticOperator.MULT);
+        vectorOfOperators.add(ArithmeticOperator.ADD);
+        vectorOfOperators.add(ArithmeticOperator.SUB);
+        vectorOfOperators.add(ComparisonOperator.EQ);
+        vectorOfOperators.add(ComparisonOperator.LE);
+        vectorOfOperators.add(ComparisonOperator.GE);
+        vectorOfOperators.add(ComparisonOperator.GT);
+        vectorOfOperators.add(ComparisonOperator.LT);
+        vectorOfOperators.add(ComparisonOperator.NE);
+        vectorOfOperators.add(LogicalOperator.NOT);
+        vectorOfOperators.add(LogicalOperator.AND);
+        vectorOfOperators.add(LogicalOperator.OR);
+        vectorOfOperators.add(AssignmentOperator.ASSIGN);
+        vectorOfOperators.add(AssignmentOperator.ADD_ASSIGN);
+        vectorOfOperators.add(AssignmentOperator.SUB_ASSIGN);
+        vectorOfOperators.add(AssignmentOperator.MULT_ASSIGN);
+        vectorOfOperators.add(AssignmentOperator.DIV_ASSIGN);
+        vectorOfOperators.add(AssignmentOperator.MOD_ASSIGN);
+        
+        for(int i = 0; i < vectorOfOperators.size(); i++){
+        	if(value == vectorOfOperators.get(i)){
+        	 	return true;
+        	}
+        }
+
+        return false;
 	}
 
 	public static Var toVar(String value, HashMap<String,Var> variables) throws RuntimeException {
@@ -88,15 +107,12 @@ public class Parser{
 			return new StrVar("__tmp",value.substring(1,value.length()-1));
 		}
 		catch (Exception e) {}
-<<<<<<< HEAD
-=======
 		try{
 			if(value.charAt(0) == '\'' && value.charAt(value.length()-1) == '\''){
 				return new CharVar(value.charAt(1));
 			}
 		}
 		catch (Exception e) {}
->>>>>>> f7e36d9ec4232dbd599643acf9531e7006fab091
 		if (value.contains(".") && !(Character.isDigit(value.charAt(value.indexOf('.')-1)))) {
 			//x.y()
 			String name="", function="";
@@ -249,15 +265,15 @@ public class Parser{
         Object operator;
         exp+=" "; //Evitar NullPointerException
         ArrayList<Object> stack = new ArrayList<Object>();
-        String parsing="";
+        String parsing="",type = "";
         char c,c1;
         boolean isString = false;
 
-        while (i<exp.length()-1) {
-           	parsing+=exp.charAt(i);
-            operator=null;
-            c=exp.charAt(i);
-            c1=exp.charAt(i+1);
+        while (i < exp.length()-1) {
+           	parsing += exp.charAt(i);
+            operator = null;
+            c = exp.charAt(i);
+            c1 = exp.charAt(i +1);
           	
           	//Verefica se é string
             if(isString){
@@ -271,7 +287,7 @@ public class Parser{
  				isString = true;
  			}
 
-            else if (c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || i==exp.length()-2) {
+            else if (c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || c==',' || i==exp.length()-2) {
 				
 				if ((Parser.countStringOcurrences(parsing, "(") != Parser.countStringOcurrences(parsing, ")")) && c1 != '\"') {
 					//Same number of open and closed parenthesis
@@ -306,39 +322,41 @@ public class Parser{
 				}
 				//criação de variaveis
 				if (parsing.startsWith("int") && parsing.charAt(3) != '(') {
+					type = "int";
 					parsing=parsing.replaceFirst("int", "");
 					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new IntVar(parsing));
 				}
 				else if (parsing.startsWith("float") && parsing.charAt(5) != '(') {
+					type = "float";
 					parsing=parsing.replaceFirst("float", "");
 					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new FloatVar(parsing));
 				}
 				else if (parsing.startsWith("bool") && parsing.charAt(4) != '(') {
+					type = "bool";
 					parsing=parsing.replaceFirst("bool", "");
 					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new BoolVar(parsing));
 				}
-<<<<<<< HEAD
-				else if (parsing.startsWith("str") && parsing.charAt(3) != '(') {
-=======
-
 				else if (parsing.contains("char") && parsing.charAt(4) != '(') {
+					type = "char";
 					parsing = parsing.replaceFirst("char","");
 					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new CharVar(parsing));
 				}
 				else if (parsing.startsWith("str") && parsing.charAt(3)!='(') {
->>>>>>> f7e36d9ec4232dbd599643acf9531e7006fab091
+					type = "str";
 					parsing=parsing.replaceFirst("str", "");
 					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new StrVar(parsing));
 				}
 				else if (parsing.contains("vector")) {
+					type = "vector";
 					parsing=parsing.replaceAll("vector", "");
 					variables.put(parsing, new Vector(parsing));
 				}
+
 				if (!parsing.equals("")) stack.add(Parser.toVar(parsing, variables));
                 if (c=='=' && c1=='=') {
                     operator=ComparisonOperator.EQ;
@@ -416,6 +434,13 @@ public class Parser{
                     stack.add(operator);
                 }
                 parsing="";
+
+                if(c == ','){
+               		type += exp.substring(i+1,exp.length());
+                	exp = type;
+                	type = "";
+                  	i = -1;
+            	}
             }
             i++;
         }
@@ -423,7 +448,7 @@ public class Parser{
 		if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
         return stack;
 	}
-	
+
 	public static Var evaluateStackByPriority(ArrayList<Object> stack, HashMap<String,Var> variables) throws RuntimeException {
 		int i=0;
 		ArrayList<Integer> lasti = new ArrayList<Integer>();
@@ -445,6 +470,7 @@ public class Parser{
 		}
 
 		while (stack.size() != 1 && i < stack.size()) {
+
 			if (rollback) {
 				i=lasti.get(lasti.size()-1);
 				lasti.remove(lasti.size()-1);
@@ -464,7 +490,13 @@ public class Parser{
 				}
 				System.out.println();
 			}
-			
+
+			//a,b
+			if(i < stack.size() -1 && !isOperator(stack.get(i +1)) || i > 0 && !isOperator(stack.get(i -1)) && i == stack.size() -1){
+				stack.remove(i);
+				i = 0;
+				continue;
+			}
 			//!b, int a
 			if (i < stack.size() && stack.get(i) instanceof Enum && i +1 < stack.size() && stack.get(i +1) instanceof Var) {
 				Var res = Expression.evaluate(stack.get(i),stack.get(i+1));
@@ -481,6 +513,7 @@ public class Parser{
 			}
 			//a+b
 			if (i < stack.size() && stack.get(i) instanceof Var && i +1 < stack.size() && stack.get(i +1) instanceof Enum && i +2 < stack.size() && stack.get(i +2) instanceof Var) {
+				
 				//a+b*c
 				if (i +3 < stack.size() && stack.get(i +3) instanceof Enum && i +4 < stack.size() && stack.get(i +4) instanceof Var) {
 					if (Expression.compareOperators(stack.get(i+1),stack.get(i+3))<0) {
