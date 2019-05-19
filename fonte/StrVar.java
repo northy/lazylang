@@ -14,7 +14,7 @@ public class StrVar extends Var{
     public StrVar(String name){
         this();
         this.name = name; 
-        this.data = null;       
+        this.data = "";       
     }
 
     //getters

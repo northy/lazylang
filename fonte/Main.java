@@ -37,11 +37,15 @@ class Main {
             String line="";
             for (;;) {
                 System.out.print(Main.shellPrefix + " ");
-                line=s.nextLine();
-                if (line.equals("q")) break;
+                line=s.nextLine();  
+                if (line.equals(":q")) break;
                 p.parse(line,vars);
             }
             s.close();
+            //Vereficação das variaveis
+            for(String c : vars.keySet()){
+                ((Var)vars.get(c)).print();
+            }
         }
     }
 }
