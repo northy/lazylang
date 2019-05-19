@@ -42,10 +42,6 @@ class Main {
                 p.parse(line,vars);
             }
             s.close();
-            //Vereficação das variaveis
-            for(String c : vars.keySet()){
-                ((Var)vars.get(c)).print();
-            }
         }
     }
 }
