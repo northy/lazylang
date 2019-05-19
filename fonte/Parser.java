@@ -481,7 +481,6 @@ public class Parser{
 	}
 
 	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables) throws RuntimeException{
-		System.out.println(exp);
 		int i=0;
         Object operator;
         exp+=" "; //Evitar NullPointerException
