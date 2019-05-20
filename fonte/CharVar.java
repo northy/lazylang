@@ -1,5 +1,5 @@
 public class CharVar extends Var {
-    protected Character data;
+    protected char data;
 
     //construtores
     public CharVar() {

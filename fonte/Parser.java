@@ -150,20 +150,9 @@ public class Parser{
 				else if (curArray.size()==0) {
 					lastIfResult=-1;
 					Var ret=null;
-					try {
-						ret = Parser.evaluateStackByPriority(Parser.expressionStack(curString,variables), variables);
-					}
-					catch (Exception e) {
-						System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
-						if (debugging) e.printStackTrace();
-						if (!this.shellMode) {
-							System.exit(1);
-						}
-					}
-					finally {
-						if (this.shellMode && ret instanceof Var) System.out.println(ret.getData()); 
-						curString="";
-					}
+                    ret = Parser.evaluateStackByPriority(Parser.expressionStack(curString,variables), variables);
+                    if (this.shellMode && ret instanceof Var) System.out.println(ret.getData()); 
+                    curString="";
 				}
 				if (c=='}') depth=Math.max(0,depth-1);
 			}
