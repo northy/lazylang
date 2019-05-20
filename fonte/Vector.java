@@ -28,7 +28,7 @@ public class Vector extends Var {
 	@Override
 	public void setData(Object d) throws OperatorException {
 		try {
-			this.setData(d);
+			this.data = (ArrayList<Var>)d;
 		} catch (Exception e) {
 			throw new OperatorException("Unexpected data for vector assignment");
 		}

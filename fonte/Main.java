@@ -27,7 +27,13 @@ class Main {
             while (fileInput.hasNextLine()) {
                 cLine++;
                 Main.curLine = "at line " + cLine;
-                p.parse(fileInput.nextLine(),vars);
+                try {
+                    p.parse(fileInput.nextLine(),vars);
+                }
+                catch (Exception e) {
+                    System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
+                    System.exit(1);
+                }
             }
             fileInput.close();
         }
@@ -39,7 +45,13 @@ class Main {
                 System.out.print(Main.shellPrefix + " ");
                 line=s.nextLine();  
                 if (line.equals(":q")) break;
-                p.parse(line,vars);
+                try {
+                    p.parse(line,vars);
+                }
+                catch (Exception e) {
+                    p.curLine="";
+                    System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
+                }
             }
             s.close();
         }
