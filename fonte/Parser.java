@@ -474,7 +474,7 @@ public class Parser{
 				return Expression.evaluate(CastOperator.BOOL,parameters.get(0));
 			}
 			if (function.equals("char")){
-				Character tmp;
+				char tmp;
 				String _tmp;
 				_tmp = parameters.get(0).toString();
 				tmp = _tmp.charAt(0);
