@@ -6,8 +6,10 @@ public class Parser{
 	//Atributos
 	String curString;
 	ArrayList<Object> curArray;
-	boolean shellMode;
+	HashMap<String,Function> funcoes;
+	boolean shellMode,functionIsOpen;
 	int depth, lastIfResult;
+	Function funcao;
 	static int tempCount=0;
 
 	//Construtor
@@ -16,6 +18,10 @@ public class Parser{
 		curString = "";
 		depth=0;
 		curArray=new ArrayList<Object>();
+
+		funcoes = new HashMap<String,Function>();
+		functionIsOpen = false;
+		funcao = new Function();
 	}
 	public Parser(boolean s) {
 		this();
@@ -137,6 +143,44 @@ public class Parser{
 					tmpArray = new ArrayList<Object>();
 					tmpArray2 = new ArrayList<Object>();
 				}
+				else if(curString.startsWith("function")){
+					functionIsOpen = true;
+					tmpArray.add("function");
+					depth++;
+					i=8;
+					while (curString.charAt(i) != '(') {
+						tmp+=str.charAt(i);
+						i++;
+					}
+					funcao.setName(tmp);
+					tmpArray.add(tmp);
+					tmp = "";
+
+					i++;
+					while(curString.charAt(i) != ')'){
+						if(curString.charAt(i) == ','){
+							funcao.setParameters(tmp);
+							tmpArray.add(tmp);
+							tmp = "";
+						}else{
+							tmp += curString.charAt(i);
+						}
+						i++;
+					}
+					funcao.setParameters(tmp);
+					tmpArray.add(tmp);
+
+					curString=curString.replace(curString.subSequence(0,i+1),"");
+					if (depth==1) curArray=tmpArray; 
+					else {
+						tmpArray2=curArray;
+						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
+						tmpArray2.add(tmpArray);
+					}
+					funcoes.put(funcao.getName(),funcao);
+					tmpArray = new ArrayList<Object>();
+					tmpArray2 = new ArrayList<Object>();
+				}
 				else if (depth!=0 && c==';') {
 					tmpArray=curArray;
 					for (i=0; i<depth-1; ++i) tmpArray=((ArrayList<Object>)tmpArray.get(tmpArray.size()-1));
@@ -144,7 +188,15 @@ public class Parser{
 					curString="";
 				}
 				else if (depth==1 && c=='}') {
-					this.parseBlock(curArray, variables);
+					if(functionIsOpen == true){
+						String name = curArray.get(1).toString();
+						curArray.remove(1);
+						funcao.setScope(curArray);
+						functionIsOpen = false;
+						funcao = new Function();
+					}else{
+						this.parseBlock(curArray, variables);
+					}
 					curArray=new ArrayList<Object>();
 				}
 				else if (curArray.size()==0) {
@@ -522,7 +574,7 @@ public class Parser{
 		}      
 
         while (i < exp.length()-1) {
-           	parsing += exp.charAt(i);
+           	parsing += exp.charAt(i);    
             operator = null;
             c = exp.charAt(i);
             c1 = exp.charAt(i +1);
