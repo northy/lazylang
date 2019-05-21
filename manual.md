@@ -88,7 +88,7 @@ Percorre o vetor contando as ocorrências de um regex passado como parãmetro:
      v.count(2);
 
 ### Caractere
-São variáveis formadas de um único caractere,e ele deve estar entre '' , pode ser declarado da seguinte forma:
+São variáveis formadas de um único caractere,e ele deve estar entre ' ' , pode ser declarado da seguinte forma:
 
      char variavel;
 também podem receber um valor já na declaração, por exemplo:
@@ -106,6 +106,83 @@ também podem receber um valor já na declaração, por exemplo:
 ## Funcionalidades
 
 Apesar de ainda ser uma linguagem básica, Lazylang possui tudo o que é necessário ao programador: estruturas de controle de fluxo(condições), estruturas de repetição(laços), e funções de entrada e saída.
+
+### Operadores
+
+Lazylang conta com operadores lógicos, aritiméticos e de cast.
+
+#### Operadores aritimeticos
+
+|Operador|Função|
+|----| :----|
+| % |resto de divisão|
+| / |divisão|
+| * |multiplicação|
+| + |adição|
+| - |subtração|
+
+#### Operadores lógicos
+
+|Operador|Função|
+
+| ! | Não | 
+| && | E |
+| \|\|| Ou |
+
+#### Operadores de comparação
+
+|Operador|Função|
+|----| :----|
+| == | igual |
+| <= | menor/igual|
+| >= | maior/igual
+| < | menor
+| > | maior
+| != | diferente
+
+#### Operadores de cast
+
+Forçam um tipo de dado a ser outro tipo, tendo cast para int, float e bool. Funcionam da seguinte forma:
+
+##### Int
+
+     int(variavel);
+
+##### Float
+
+     float(variavel);
+
+##### Bool
+
+    bool(variavel);
+
+#### Precedencia de operadores
+
+Os operadores possuem a seguinte ordem de precedência, sendo 1 a maior e 7 a menor.
+
+|Operador|Precedência|
+|----| :----|
+| % |1|
+| / |1|
+| * |1|
+| + |2|
+| - |2|
+| == |3
+| <= |3
+| >= |3
+| < |3
+| > |3
+| != |3
+| ! |4
+| && |5
+| \|\||6|
+| = |7|
+| += |7|
+| -= |7|
+| *= |7|
+| /= |7|
+| %= |7|
+
 
 ### Estruturas de controle de fluxo
 As estruturas de controle de fluxo de Lazylang são basicamente iguais as do Java, sendo elas:
