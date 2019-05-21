@@ -17,9 +17,8 @@ public class Parser{
 		curString = "";
 		depth=0;
 		curArray=new ArrayList<Object>();
-
 		functionIsOpen = false;
-		funcao = new Function();
+		funcao=null;
 	}
 	public Parser(boolean s) {
 		this();
@@ -92,7 +91,7 @@ public class Parser{
 					curString=curString.replace(curString.subSequence(0,i),"");
 					if (depth==1) curArray=tmpArray;
 					else {
-						findBlockDepth(curArray,2).add(tmpArray);
+						 findBlockDepth(curArray,2).add(tmpArray);
 					}
 					tmpArray = new ArrayList<Object>();
 				}
@@ -136,6 +135,7 @@ public class Parser{
 				}
 				else if(curString.startsWith("function")){
 					functionIsOpen = true;
+					funcao = new Function();
 					depth++;
 					i=8;
 					while (curString.charAt(i) != '(') {
@@ -183,7 +183,7 @@ public class Parser{
 						curArray.remove(0);
 						funcao.setContent(curArray);
 						functionIsOpen = false;
-						funcao = new Function();
+						funcao = null;
 					}
 					else{
 						//execute the block
@@ -206,55 +206,85 @@ public class Parser{
 		else Main.shellPrefix="Prelude>";
 	}
 
-	public void parseBlock(ArrayList<Object> o, HashMap<String, Var> variables, HashMap<String, Function> functions) throws RuntimeException {
+	public Var parseBlock(ArrayList<Object> o, HashMap<String, Var> variables, HashMap<String, Function> functions) throws RuntimeException {
 		Var v;
 
 		if (o.get(0).equals("if")) {
 			v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables, functions),variables);
 			if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) {
 				lastIfResult=0;
-				return;
+				return null;
 			}
 			lastIfResult=-1;
 			for (int i=2; i<o.size(); ++i) {
 				if (o.get(i) instanceof ArrayList<?>) {
-					parseBlock(objectToALObject(o.get(i)),variables, functions);
+					Var r = parseBlock(objectToALObject(o.get(i)),variables, functions);
+					if (r instanceof Var) {
+						lastIfResult=1;
+						return r;
+					}
 				}
 				else {
-					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
+					String value = o.get(i).toString();
+					if(value.startsWith("return")){
+						value = value.substring(6,value.length());
+						lastIfResult=1;
+						return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
+					}
+					Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 				}
 			}
 			lastIfResult=1;
 		}
 		else if (o.get(0).equals("elif")) {
 			if (lastIfResult==-1) throw new RuntimeException("Don't use elif block without an if block");
-			if (lastIfResult==1) return;
+			if (lastIfResult==1) return null;
 			v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables, functions),variables);
 			if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) {
 				lastIfResult=0;
-				return;
+				return null;
 			}
 			lastIfResult=-1;
 			for (int i=2; i<o.size(); ++i) {
 				if (o.get(i) instanceof ArrayList<?>) {
-					parseBlock(objectToALObject(o.get(i)),variables,functions);
+					Var r = parseBlock(objectToALObject(o.get(i)),variables, functions);
+					if (r instanceof Var) {
+						lastIfResult=1;
+						return r;
+					}
 				}
 				else {
-					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
+					String value = o.get(i).toString();
+					if(value.startsWith("return")){
+						value = value.substring(6,value.length());
+						lastIfResult=1;
+						return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
+					}
+					Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 				}
 			}
 			lastIfResult=1;
 		}
 		else if (o.get(0).equals("else")) {
 			if (lastIfResult==-1) throw new RuntimeException("Don't use else block without an if block");
-			if (lastIfResult==1) {lastIfResult=-1; return;}
+			if (lastIfResult==1) {lastIfResult=-1; return null;}
 			lastIfResult=-1;
 			for (int i=1; i<o.size(); ++i) {
 				if (o.get(i) instanceof ArrayList<?>) {
-					parseBlock(objectToALObject(o.get(i)),variables,functions);
+					Var r = parseBlock(objectToALObject(o.get(i)),variables, functions);
+					if (r instanceof Var) {
+						lastIfResult=-1;
+						return r;
+					}
 				}
 				else {
-					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
+					String value = o.get(i).toString();
+					if(value.startsWith("return")){
+						value = value.substring(6,value.length());
+						lastIfResult=-1;
+						return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
+					}
+					Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 				}
 			}
 			lastIfResult=-1;
@@ -295,6 +325,7 @@ public class Parser{
 		else {
 			throw new RuntimeException("Unknown block type: " + o.get(0));
 		}
+		return null;
 	}
 
 	//Métodos estáticos
@@ -342,6 +373,7 @@ public class Parser{
 	}
 
 	public static Var toVar(String value, HashMap<String,Var> variables, HashMap<String,Function> functions) throws RuntimeException {
+
 		if (variables.get(value) instanceof Var) return variables.get(value);
 		try {
 			//int
@@ -440,6 +472,7 @@ public class Parser{
 				i++;
 			}
 			i++;
+				
 			while (i<value.length() && value.charAt(i)!=')') {
 				name+=value.charAt(i);
 				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(value, "(")==Parser.countStringOcurrences(value, ")"))) {
@@ -559,13 +592,7 @@ public class Parser{
         String parsing="",type = "";
         char c,c1;
         boolean isString = false;
-		
-		//Quando o println/print chamam o expressionStack
-		if(exp.charAt(0) == '\"'){
-			stack.add(new StrVar("__tmp",exp.substring(1,exp.length()-2)));
-			return stack;
-		}      
-
+	
         while (i < exp.length()-1) {
            	parsing += exp.charAt(i);    
             operator = null;
@@ -575,13 +602,14 @@ public class Parser{
           	//Verefica se é string
             if(isString){
             	if(c == '\"'){
-            		stack.add(Parser.toVar(parsing,variables, functions));
+            		stack.add(Parser.toVar(parsing,variables,functions));
             		parsing = "";
             		isString = false;
             	}
             }
- 			else if(c == '\"' && i > 0 && exp.charAt(i -1) != '(' && exp.charAt(i +1) != ')'){
+ 			else if(c == '\"'){
  				isString = true;
+ 				parsing = "\"";
  			}
             else if (c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || c==',' || i==exp.length()-2) {
 				if ((Parser.countStringOcurrences(parsing, "(") != Parser.countStringOcurrences(parsing, ")"))) {
@@ -589,7 +617,6 @@ public class Parser{
 					i++;
 					continue;
 				}
-				
 				if (i != exp.length() -2 && c != '(' && c != ')') parsing = parsing.substring(0, parsing.length()-1);
 				if (parsing.contains("(") && (parsing.indexOf("(") -1 < 0 || !Character.isAlphabetic(parsing.charAt(parsing.indexOf("(") -1)))) {
 					//Evaluate parenthesis first;
@@ -740,7 +767,7 @@ public class Parser{
             }
             i++;
         }
-		//if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
+		if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
         return stack;
 	}
 
