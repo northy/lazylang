@@ -1,3 +1,4 @@
+<img src="https://i.imgur.com/iuB0lSl.png]" alt="drawing" width="200"/>
 
 # **Lazylang**
 
@@ -306,3 +307,4 @@ Para ler do teclado temos o input, o readInt, o readFloat e o readBool.
 É usada para ler booleanos do teclado, a função pode ou não conter mensagem e possui o seguinte formato:
 
      variavel = readBool();
+
