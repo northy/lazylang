@@ -49,15 +49,18 @@ public class Parser{
 				//evaluate the expression
 
 				//======block creation======
+				int parCount=0;
 				if (c==';' && curString.startsWith("for")) {
 					curString+=';';
 					continue;
 				}
-				if (curString.startsWith("if")) {
+				else if (curString.startsWith("if")) {
 					tmpArray.add("if");
 					depth++;
 					i=3;
-					while (curString.charAt(i) != ')') {
+					while (curString.charAt(i) != ')' || parCount!=0) {
+						if (curString.charAt(i)=='(') parCount++;
+						if (curString.charAt(i)==')') parCount--;
 						tmp+=str.charAt(i);
 						i++;
 					}
@@ -69,11 +72,13 @@ public class Parser{
 					}
 					tmpArray = new ArrayList<Object>();
 				}
-				if (curString.startsWith("elif")) {
+				else if (curString.startsWith("elif")) {
 					tmpArray.add("elif");
 					depth++;
 					i=5;
-					while (curString.charAt(i) != ')') {
+					while (curString.charAt(i) != ')' || parCount!=0) {
+						if (curString.charAt(i)=='(') parCount++;
+						if (curString.charAt(i)==')') parCount--;
 						tmp+=str.charAt(i);
 						i++;
 					}
@@ -85,7 +90,7 @@ public class Parser{
 					}
 					tmpArray = new ArrayList<Object>();
 				}
-				if (curString.startsWith("else")) {
+				else if (curString.startsWith("else")) {
 					tmpArray.add("else");
 					depth++;
 					i=4;
@@ -100,7 +105,9 @@ public class Parser{
 					tmpArray.add("while");
 					depth++;
 					i=6;
-					while (curString.charAt(i) != ')') {
+					while (curString.charAt(i) != ')' || parCount!=0) {
+						if (curString.charAt(i)=='(') parCount++;
+						if (curString.charAt(i)==')') parCount--;
 						tmp+=str.charAt(i);
 						i++;
 					}
@@ -116,7 +123,9 @@ public class Parser{
 					tmpArray.add("for");
 					depth++;
 					i=4;
-					while (curString.charAt(i) != ')') {
+					while (curString.charAt(i) != ')' || parCount!=0) {
+						if (curString.charAt(i)=='(') parCount++;
+						if (curString.charAt(i)==')') parCount--;
 						if (curString.charAt(i)==';') {
 							tmpArray.add(tmp);
 							tmp="";
@@ -138,7 +147,9 @@ public class Parser{
 					functionIsOpen = true;
 					depth++;
 					i=8;
-					while (curString.charAt(i) != '(') {
+					while (curString.charAt(i) != '(' || parCount!=0) {
+						if (curString.charAt(i)=='(') parCount++;
+						if (curString.charAt(i)==')') parCount--;
 						tmp+=str.charAt(i);
 						i++;
 					}
@@ -375,7 +386,7 @@ public class Parser{
 			}
 		}
 		catch (Exception e) {}
-		if (value.contains(".") && !(Character.isLetterOrDigit(value.charAt(value.indexOf('.')-1)))) {
+		if (value.contains(".") && (Character.isLetterOrDigit(value.charAt(value.indexOf('.')-1)))) {
 			//x.y()
 			String name="", function="";
 			Var object;
@@ -409,8 +420,14 @@ public class Parser{
 				if (function.equals("get")) {
 					return ((Vector)object).get(((IntVar)parameters.get(0)).getData());
 				}
+				if (function.equals("size")) {
+					return ((Vector)object).size();
+				}
 				if (function.equals("append")) {
 					((Vector)object).append((Var)parameters.get(0));
+				}
+				if (function.equals("appendPointer")) {
+					((Vector)object).appendPointer((Var)parameters.get(0));
 				}
 				if (function.equals("pop") && parameters.size()==0) {
 					return ((Vector)object).pop();
@@ -533,13 +550,14 @@ public class Parser{
 			return null;
 		}
 		
-		if (value.contains("[") && value.contains("]") && Character.isAlphabetic(value.charAt(value.indexOf('[')-1))) {
-			//vector position
-			String name="",index="";
-			for (int i=0; i<value.length(); ++i) {
+		while (value.contains("[") && value.contains("]") && Character.isLetterOrDigit(value.charAt(value.indexOf('[')-1))) {
+			//vector[i]
+			String name="",index="",tmpName;
+			int i,j=-1;
+			for (i=0; i<value.length(); ++i) {
 				if (value.charAt(i)!='[') name+=value.charAt(i);
 				else {
-					int j = i+1;
+					j = i+1;
 					while (value.charAt(j)!=']') {
 						index+=value.charAt(j);
 						++j;
@@ -547,7 +565,14 @@ public class Parser{
 					break;
 				}
 			}
-			return ((Vector)variables.get(name)).get(Integer.parseInt(index));
+			Var v = evaluateStackByPriority(expressionStack(index, variables, functions),variables);
+			tmpName="__tmp"+tempCount++;
+			variables.put(tmpName, ((Vector)variables.get(name)).get(((IntVar)v).getData()));
+			value=value.replace(value.subSequence(0, j+1),tmpName);
+			if (!(value.contains("[") && value.contains("]") && Character.isLetterOrDigit(value.charAt(value.indexOf('[')-1)))) {
+				if (!(variables.get(value) instanceof Var)) throw new RuntimeException("Unexpected error parsing parenthesis index");
+				return variables.get(value);
+			}
 		}
 
 		throw new OperatorException("Unable to transform \"" + value + "\" to a variable");
@@ -617,8 +642,7 @@ public class Parser{
 							else {
 								tmpName="__tmp"+tempCount++;
 								variables.put(tmpName, Parser.evaluateStackByPriority(Parser.expressionStack((String)parsing.subSequence(oldJ+1, j), variables, functions), variables));
-								StringBuffer buff = new StringBuffer(parsing).replace(oldJ, j+1,tmpName);
-								parsing=buff.toString();
+								parsing=parsing.replace(parsing.subSequence(oldJ, j+1),tmpName);
 								j=oldJ;
 								continue;
 							}
@@ -662,7 +686,6 @@ public class Parser{
 					parsing=parsing.replaceAll("vector", "");
 					variables.put(parsing, new Vector(parsing));
 				}
-
 				if (!parsing.equals("")) stack.add(Parser.toVar(parsing, variables, functions));
                 if (c=='=' && c1=='=') {
                     operator=ComparisonOperator.EQ;
@@ -750,7 +773,7 @@ public class Parser{
             }
             i++;
         }
-		//if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
+		if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
         return stack;
 	}
 

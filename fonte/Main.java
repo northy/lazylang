@@ -33,6 +33,7 @@ class Main {
                 }
                 catch (Exception e) {
                     System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
+                    e.printStackTrace();
                     System.exit(1);
                 }
             }

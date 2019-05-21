@@ -44,6 +44,10 @@ public class Vector extends Var {
 	}
 
 	public void append(Var x) {
+		this.getData().add(x.copy());
+	}
+
+	public void appendPointer(Var x) {
 		this.getData().add(x);
 	}
 
