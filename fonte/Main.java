@@ -52,7 +52,6 @@ class Main {
                 catch (Exception e) {
                     p.curString="";
                     System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
-                    e.printStackTrace();
                 }
             }
             s.close();

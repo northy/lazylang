@@ -156,7 +156,7 @@ public class Parser{
 					i++;
 					while(curString.charAt(i) != ')'){
 						if(curString.charAt(i) == ','){
-							funcao.setParameters(tmp);
+							funcao.addParameter(tmp,functions);
 							tmpArray.add(tmp);
 							tmp = "";
 						}else{
@@ -164,7 +164,7 @@ public class Parser{
 						}
 						i++;
 					}
-					funcao.setParameters(tmp);
+					funcao.addParameter(tmp,functions);
 					tmpArray.add(tmp);
 
 					curString=curString.replace(curString.subSequence(0,i+1),"");
@@ -188,7 +188,7 @@ public class Parser{
 					if(functionIsOpen == true){
 						String name = curArray.get(0).toString();
 						curArray.remove(0);
-						funcao.setScope(curArray);
+						funcao.setContent(curArray);
 						functionIsOpen = false;
 						funcao = new Function();
 					}
@@ -522,8 +522,8 @@ public class Parser{
 			else if(function.equals("str")) {
 				return new StrVar("__tmp",parameters.get(0).toString());
 			}
-			else {
-				functions.get(function).run(functions);
+			else{
+				functions.get(function).run(parameters,functions);
 			}
 			return null;
 		}
