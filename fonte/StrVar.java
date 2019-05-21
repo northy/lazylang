@@ -1,5 +1,4 @@
-//Giovane Gonçalves da Silva
-<giovanegsilva@outlook.com>
+//Giovane Gonçalves da Silva <giovanegsilva@outlook.com>
 
 public class StrVar extends Var{
 	protected String data;

@@ -1,3 +1,5 @@
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+
 public enum ComparisonOperator {
     EQ, //EQUALS
     GT, //GREATER THAN

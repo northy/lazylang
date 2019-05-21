@@ -1,3 +1,5 @@
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+
 public class OperatorException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 

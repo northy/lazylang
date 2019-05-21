@@ -1,3 +1,5 @@
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+
 import java.util.ArrayList;
 
 public class Vector extends Var {

@@ -1,3 +1,5 @@
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+
 public class IntVar extends Var {
     protected int data;
 

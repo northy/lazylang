@@ -1,3 +1,5 @@
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+
 public abstract class Var {
     protected String name;
     protected String type;

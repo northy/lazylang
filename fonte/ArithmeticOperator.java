@@ -1,3 +1,5 @@
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+
 public enum ArithmeticOperator {
     ADD, //Adds values on either side of the operator (+)
     SUB, //Subtracts right hand operand from left hand operand (-)

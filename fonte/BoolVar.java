@@ -1,3 +1,5 @@
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+
 public class BoolVar extends Var {
     protected boolean data;
 

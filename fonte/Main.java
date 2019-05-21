@@ -1,3 +1,5 @@
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -35,7 +37,6 @@ class Main {
                 }
                 catch (Exception e) {
                     System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
-                    e.printStackTrace();
                     System.exit(1);
                 }
             }
@@ -58,7 +59,6 @@ class Main {
                 catch (Exception e) {
                     p.curString="";
                     System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
-                    e.printStackTrace();
                 }
             }
             s.close();

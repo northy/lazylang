@@ -1,5 +1,6 @@
-//Igor Andrey Ronsoni
-<igorandrey@yahoo.com.br>
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+//Igor Andrey Ronsoni<igorandrey@yahoo.com.br>
+
 import java.util.ArrayList;
 import java.util.HashMap;
 

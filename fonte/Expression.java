@@ -1,3 +1,5 @@
+//Alexsandro Thomas <alexsandrogthomas@gmail.com>
+
 import java.util.HashMap;
 
 public abstract class Expression {
