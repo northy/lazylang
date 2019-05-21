@@ -49,7 +49,7 @@ class Main {
                     p.parse(line,vars);
                 }
                 catch (Exception e) {
-                    p.curLine="";
+                    p.curString="";
                     System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
                 }
             }
