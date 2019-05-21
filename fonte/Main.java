@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 class Main {
     public static String defaultShellPrefix = ">>>";
+    public static String defaultShellIncomplete = "...";
     public static String shellPrefix = new String(defaultShellPrefix);
     public static String curLine = "";
 
@@ -39,6 +40,9 @@ class Main {
                 }
             }
             fileInput.close();
+            if (shellPrefix.equals(defaultShellIncomplete)) {
+                System.out.println("ERROR " + "at line " + cLine++ + " Unexpected EOF");
+            }
         }
         else {
             p = new Parser(true);

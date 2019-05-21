@@ -36,9 +36,11 @@ public class Parser{
 		int i;
 		String tmp = "";
 		ArrayList<Object> tmpArray = new ArrayList<Object>();
+		boolean debugging=false;
 
 		str=removeWhitespacesOutsideString(str);
-		
+		if (debugging) System.out.println(Main.shellPrefix + " " + str);
+
 		for (char c : str.toCharArray()) {
 			if (c!=';' && c!='{' && c!='}') {
 				//keep reading
@@ -47,7 +49,7 @@ public class Parser{
 			else {
 				//evaluate the expression
 
-				//======block creation======
+				//======block creation======\\
 				int parCount=0;
 				if (c==';' && curString.startsWith("for")) {
 					curString+=';';
@@ -181,7 +183,7 @@ public class Parser{
 					functions.put(funcao.getName(),funcao);
 					tmpArray = new ArrayList<Object>();
 				}
-				//======block creation======
+				//======block creation======\\
 
 				else if (depth!=0 && c==';') {
 					//add an expression to block
@@ -219,7 +221,7 @@ public class Parser{
 				if (c=='}') depth=Math.max(0,depth-1);
 			}
 		}
-		if(!(curString.equals("")) || curArray.size()!=0) Main.shellPrefix="...";
+		if(!(curString.equals("")) || curArray.size()!=0) Main.shellPrefix=Main.defaultShellIncomplete;
 		else Main.shellPrefix=Main.defaultShellPrefix;
 	}
 
@@ -243,10 +245,18 @@ public class Parser{
 				}
 				else {
 					String value = o.get(i).toString();
-					if(value.startsWith("return")){
+					if (value.startsWith("return")){
 						value = value.substring(6,value.length());
 						lastIfResult=1;
 						return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
+					}
+					if (value.startsWith("continue")) {
+						lastIfResult=1;
+						return new StrVar("", "continue");
+					}
+					if (value.startsWith("break")) {
+						lastIfResult=1;
+						return new StrVar("", "break");
 					}
 					Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 				}
@@ -277,6 +287,14 @@ public class Parser{
 						lastIfResult=1;
 						return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 					}
+					if (value.startsWith("continue")) {
+						lastIfResult=1;
+						return new StrVar("", "continue");
+					}
+					if (value.startsWith("break")) {
+						lastIfResult=1;
+						return new StrVar("", "break");
+					}
 					Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 				}
 			}
@@ -301,6 +319,14 @@ public class Parser{
 						lastIfResult=-1;
 						return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 					}
+					if (value.startsWith("continue")) {
+						lastIfResult=1;
+						return new StrVar("", "continue");
+					}
+					if (value.startsWith("break")) {
+						lastIfResult=1;
+						return new StrVar("", "break");
+					}
 					Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 				}
 			}
@@ -308,32 +334,86 @@ public class Parser{
 		}
 		else if (o.get(0).equals("while")) {
 			lastIfResult=-1;
+			boolean breakable = false;
 			for (;;) {
 				v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables, functions),variables);
-				if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) break;
+				if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData()) || breakable) break;
 				for (int i=2; i<o.size(); ++i) {
 					if (o.get(i) instanceof ArrayList<?>) {
-						parseBlock(objectToALObject(o.get(i)),variables,functions);
+						Var r = parseBlock(objectToALObject(o.get(i)),variables, functions);
+						if (r instanceof Var) {
+							lastIfResult=-1;
+							if (r instanceof StrVar && r.getName().equals("")) {
+								if (r.getData().equals("continue")) {
+									break;
+								}
+								if (r.getData().equals("break")) {
+									breakable=true;
+									break;
+								}
+							}
+							return r;
+						}
 					}
 					else {
-						Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
+						String value = o.get(i).toString();
+						if(value.startsWith("return")){
+							value = value.substring(6,value.length());
+							lastIfResult=-1;
+							return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
+						}
+						if (value.startsWith("continue")) {
+							break;
+						}
+						if (value.startsWith("break")) {
+							breakable=true;
+							break;
+						}
+						Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 					}
 				}
 			}
 		}
 		else if (o.get(0).equals("for")) {
 			lastIfResult=-1;
+			boolean breakable = false;
 			if (o.size()<4) throw new RuntimeException("Insuficient arguments for 'for' block");
 			Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables,functions),variables);
 			for (;;) {
 				v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(2), variables, functions),variables);
-				if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) break;
+				if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData()) || breakable) break;
 				for (int i=4; i<o.size(); ++i) {
 					if (o.get(i) instanceof ArrayList<?>) {
-						parseBlock(objectToALObject(o.get(i)),variables,functions);
+						Var r = parseBlock(objectToALObject(o.get(i)),variables, functions);
+						if (r instanceof Var) {
+							lastIfResult=-1;
+							if (r instanceof StrVar && r.getName().equals("")) {
+								if (r.getData().equals("continue")) {
+									break;
+								}
+								if (r.getData().equals("break")) {
+									breakable=true;
+									break;
+								}
+							}
+							return r;
+						}
 					}
 					else {
-						Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
+						String value = o.get(i).toString();
+						if(value.startsWith("return")){
+							value = value.substring(6,value.length());
+							lastIfResult=-1;
+							return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
+						}
+						if (value.startsWith("continue")) {
+							break;
+						}
+						if (value.startsWith("break")) {
+							breakable=true;
+							break;
+						}
+						Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 					}
 				}
 				Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(3), variables, functions),variables);
@@ -390,8 +470,8 @@ public class Parser{
 	}
 
 	public static Var toVar(String value, HashMap<String,Var> variables, HashMap<String,Function> functions) throws RuntimeException {
-
 		if (variables.get(value) instanceof Var) return variables.get(value);
+
 		try {
 			//int
 			return new IntVar((int)Integer.valueOf(value));
@@ -638,27 +718,15 @@ public class Parser{
         ArrayList<Object> stack = new ArrayList<Object>();
         String parsing="",type = "";
         char c,c1;
-        boolean isString = false;
+		boolean isString = false;
 	
         while (i < exp.length()-1) {
            	parsing += exp.charAt(i);    
             operator = null;
             c = exp.charAt(i);
             c1 = exp.charAt(i +1);
-          	
-          	//Verefica se é string
-            if(isString){
-            	if(c == '\"'){
-            		stack.add(Parser.toVar(parsing,variables,functions));
-            		parsing = "";
-            		isString = false;
-            	}
-            }
- 			else if(c == '\"'){
- 				isString = true;
- 				parsing = "\"";
- 			}
-            else if (c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || c==',' || i==exp.length()-2) {
+
+            if (c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || c==',' || i==exp.length()-2) {
 				if ((Parser.countStringOcurrences(parsing, "(") != Parser.countStringOcurrences(parsing, ")"))) {
 					//Same number of open and closed parenthesis
 					i++;
