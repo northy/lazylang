@@ -6,9 +6,11 @@ public class Function{
 	private HashMap<String,Var> parameters = new HashMap<String,Var>(), scope;
 	ArrayList<String> parametersNames = new ArrayList<String>();
 	private ArrayList<Object> content = new ArrayList<Object>();
+	private Parser p;
 
 	//Construtores	
 	public Function(){
+		p = new Parser(false);
 		this.type = "function";
 	}
 
@@ -46,10 +48,10 @@ public class Function{
 			scope.put(parametersNames.get(i),pars.get(i));
 		}
 
-		for (int i=getNumberOfParameters(); i<content.size(); ++i) {
+		for (int i=getNumberOfParameters(); i<content.size(); i++) {
 			if (content.get(i) instanceof ArrayList<?>) {
-				Parser p = new Parser(false);
-				p.parseBlock(Parser.objectToALObject(content.get(i)),scope,functions);
+				Var r = p.parseBlock(Parser.objectToALObject(content.get(i)),scope,functions);
+				if (r instanceof Var) return r;
 			}
 			else {
 				String value = content.get(i).toString();
