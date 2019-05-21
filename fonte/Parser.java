@@ -29,12 +29,16 @@ public class Parser{
 	}
 
 	//Métodos
+	public ArrayList<Object> findBlockDepth(ArrayList<Object> start, int relativeHeight) {
+		for (int i=0; i<depth-relativeHeight; ++i)
+			start=((ArrayList<Object>)start.get(start.size()-1));
+		return start;
+	}
+
 	public void parse(String str, HashMap<String,Var> variables) {
-		boolean debugging=true;
 		int i;
 		String tmp = "";
 		ArrayList<Object> tmpArray = new ArrayList<Object>();
-		ArrayList<Object> tmpArray2 = new ArrayList<Object>();
 
 		str=str.replaceAll("\\s+(?=((\\[\\\"]|[^\\\"])*\"(\\[\\\"]|[^\\\"])*\")*(\\[\\\"]|[^\\\"])*$)", "");
 		str=str.trim();
@@ -59,12 +63,9 @@ public class Parser{
 					tmpArray.add(tmp);
 					if (depth==1) curArray=tmpArray;
 					else {
-						tmpArray2=curArray;
-						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
-						tmpArray2.add(tmpArray);
+						findBlockDepth(curArray,2).add(tmpArray);
 					}
 					tmpArray = new ArrayList<Object>();
-					tmpArray2 = new ArrayList<Object>();
 				}
 				if (curString.startsWith("elif")) {
 					tmpArray.add("elif");
@@ -78,12 +79,9 @@ public class Parser{
 					tmpArray.add(tmp);
 					if (depth==1) curArray=tmpArray;
 					else {
-						tmpArray2=curArray;
-						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
-						tmpArray2.add(tmpArray);
+						findBlockDepth(curArray,2).add(tmpArray);
 					}
 					tmpArray = new ArrayList<Object>();
-					tmpArray2 = new ArrayList<Object>();
 				}
 				if (curString.startsWith("else")) {
 					tmpArray.add("else");
@@ -92,12 +90,9 @@ public class Parser{
 					curString=curString.replace(curString.subSequence(0,i),"");
 					if (depth==1) curArray=tmpArray;
 					else {
-						tmpArray2=curArray;
-						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
-						tmpArray2.add(tmpArray);
+						findBlockDepth(curArray,2).add(tmpArray);
 					}
 					tmpArray = new ArrayList<Object>();
-					tmpArray2 = new ArrayList<Object>();
 				}
 				else if (curString.startsWith("while")) {
 					tmpArray.add("while");
@@ -111,12 +106,9 @@ public class Parser{
 					tmpArray.add(tmp);
 					if (depth==1) curArray=tmpArray;
 					else {
-						tmpArray2=curArray;
-						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
-						tmpArray2.add(tmpArray);
+						findBlockDepth(curArray,2).add(tmpArray);
 					}
 					tmpArray = new ArrayList<Object>();
-					tmpArray2 = new ArrayList<Object>();
 				}
 				else if (curString.startsWith("for")) {
 					tmpArray.add("for");
@@ -136,12 +128,9 @@ public class Parser{
 					curString=curString.replace(curString.subSequence(0,i+1),"");
 					if (depth==1) curArray=tmpArray;
 					else {
-						tmpArray2=curArray;
-						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
-						tmpArray2.add(tmpArray);
+						findBlockDepth(curArray,2).add(tmpArray);
 					}
 					tmpArray = new ArrayList<Object>();
-					tmpArray2 = new ArrayList<Object>();
 				}
 				else if(curString.startsWith("function")){
 					functionIsOpen = true;
@@ -171,20 +160,18 @@ public class Parser{
 					tmpArray.add(tmp);
 
 					curString=curString.replace(curString.subSequence(0,i+1),"");
-					if (depth==1) curArray=tmpArray; 
+					if (depth==1) curArray=tmpArray;
 					else {
-						tmpArray2=curArray;
-						for (i=0; i<depth-2; ++i) tmpArray2=((ArrayList<Object>)tmpArray2.get(tmpArray2.size()-1));
-						tmpArray2.add(tmpArray);
+						findBlockDepth(curArray,2).add(tmpArray);
 					}
 					funcoes.put(funcao.getName(),funcao);
 					tmpArray = new ArrayList<Object>();
-					tmpArray2 = new ArrayList<Object>();
 				}
 				else if (depth!=0 && c==';') {
 					tmpArray=curArray;
 					for (i=0; i<depth-1; ++i) tmpArray=((ArrayList<Object>)tmpArray.get(tmpArray.size()-1));
 					tmpArray.add(curString);
+					findBlockDepth(curArray, 1);
 					curString="";
 				}
 				else if (depth==1 && c=='}') {
@@ -523,7 +510,7 @@ public class Parser{
 			}
 			if(function.equals("str")) {
 				return new StrVar("__tmp",parameters.get(0).toString());
-			}
+			}			
 			return null;
 		}
 		
