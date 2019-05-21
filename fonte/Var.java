@@ -114,6 +114,11 @@ public abstract class Var {
     }
 
     public Var add(Var other) throws OperatorException {
+        if (this instanceof StrVar || other instanceof StrVar) {
+            String a = this.getData().toString();
+            String b = other.getData().toString();
+            return new StrVar("__tmp", a+b);
+        }
         double t, o;
         try {
             t = ((Number)this.getData()).doubleValue();
@@ -138,6 +143,24 @@ public abstract class Var {
     }
     
     public Var mult(Var other) throws OperatorException {
+        if (this instanceof StrVar) {
+            String a = this.getData().toString();
+            double b = ((Number)other.getData()).doubleValue();
+            String c = "";
+            for (int i=0; i<b; ++i) {
+                c+=a;
+            }
+            return new StrVar("__tmp", c);
+        }
+        if (other instanceof StrVar) {
+            String a = other.getData().toString();
+            double b = ((Number)this.getData()).doubleValue();
+            String c = "";
+            for (int i=0; i<b; ++i) {
+                c+=a;
+            }
+            return new StrVar("__tmp", c);
+        }
         double t, o;
         try {
             t = ((Number)this.getData()).doubleValue();
