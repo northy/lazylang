@@ -197,7 +197,13 @@ public class Parser{
 					Var ret=null;
                     ret = Parser.evaluateStackByPriority(Parser.expressionStack(curString,variables,functions), variables);
                     if (this.shellMode && ret instanceof Var) System.out.println(ret.getData()); 
-                    curString="";
+					curString="";
+					int tmpc=0;
+					while (variables.get("__tmp"+tmpc) instanceof Var) {
+						variables.remove("__tmp"+tmpc);
+						tmpc++;
+					}
+					tempCount=0;
 				}
 				if (c=='}') depth=Math.max(0,depth-1);
 			}
@@ -401,7 +407,7 @@ public class Parser{
 			}
 		}
 		catch (Exception e) {}
-		if (value.contains(".") && !(Character.isDigit(value.charAt(value.indexOf('.')-1)))) {
+		if (value.contains(".") && !(Character.isLetterOrDigit(value.charAt(value.indexOf('.')-1)))) {
 			//x.y()
 			String name="", function="";
 			Var object;
@@ -461,7 +467,7 @@ public class Parser{
 			return null;
 		}
 
-		if (value.contains("(") && value.contains(")") && Character.isAlphabetic(value.charAt(value.indexOf('(')-1))) {
+		if (value.contains("(") && value.contains(")") && Character.isLetterOrDigit(value.charAt(value.indexOf('(')-1))) {
 			//x()
 			String name="", function="";
 			ArrayList<Var> parameters = new ArrayList<Var>();
@@ -618,60 +624,64 @@ public class Parser{
 					continue;
 				}
 				if (i != exp.length() -2 && c != '(' && c != ')') parsing = parsing.substring(0, parsing.length()-1);
-				if (parsing.contains("(") && (parsing.indexOf("(") -1 < 0 || !Character.isAlphabetic(parsing.charAt(parsing.indexOf("(") -1)))) {
+				if (parsing.contains("(") && (parsing.indexOf("(") -1 < 0 || Character.isLetterOrDigit(parsing.charAt(parsing.indexOf("(") -1)))) {
 					//Evaluate parenthesis first;
 					String tmpName;
 					int j=parsing.indexOf('('), oldJ;
 					ArrayList<Integer> parenthesisIndexes = new ArrayList<Integer>();
 					parenthesisIndexes.add(j);
+					j++;
 
 					while (parenthesisIndexes.size() != 0) {
-						j++;
 						if (parsing.charAt(j) == '(') {
 							parenthesisIndexes.add(j);
+							j++;
 							continue;
 						}
 						if (parsing.charAt(j)==')') {
 							oldJ=parenthesisIndexes.remove(parenthesisIndexes.size()-1);
-							if (oldJ-1>=0 && Character.isAlphabetic(parsing.charAt(oldJ-1))) continue;
+							if (oldJ-1>=0 && Character.isLetterOrDigit(parsing.charAt(oldJ-1))) continue;
 							else {
 								tmpName="__tmp"+tempCount++;
 								variables.put(tmpName, Parser.evaluateStackByPriority(Parser.expressionStack((String)parsing.subSequence(oldJ+1, j), variables, functions), variables));
 								StringBuffer buff = new StringBuffer(parsing).replace(oldJ, j+1,tmpName);
 								parsing=buff.toString();
+								j=oldJ;
+								continue;
 							}
 						}
+						j++;
 					}
 				}
 				//variable creation
 				if (parsing.startsWith("int") && parsing.charAt(3) != '(') {
 					type = "int";
 					parsing=parsing.replaceFirst("int", "");
-					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
+					if (!(Character.isLetter(parsing.charAt(0)) || parsing.charAt(0)=='_')) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new IntVar(parsing));
 				}
 				else if (parsing.startsWith("float") && parsing.charAt(5) != '(') {
 					type = "float";
 					parsing=parsing.replaceFirst("float", "");
-					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
+					if (!(Character.isLetter(parsing.charAt(0)) || parsing.charAt(0)=='_')) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new FloatVar(parsing));
 				}
 				else if (parsing.startsWith("bool") && parsing.charAt(4) != '(') {
 					type = "bool";
 					parsing=parsing.replaceFirst("bool", "");
-					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
+					if (!(Character.isLetter(parsing.charAt(0)) || parsing.charAt(0)=='_')) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new BoolVar(parsing));
 				}
 				else if (parsing.contains("char") && parsing.charAt(4) != '(') {
 					type = "char";
 					parsing = parsing.replaceFirst("char","");
-					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
+					if (!(Character.isLetter(parsing.charAt(0)) || parsing.charAt(0)=='_')) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new CharVar(parsing));
 				}
 				else if (parsing.startsWith("str") && parsing.charAt(3)!='(') {
 					type = "str";
 					parsing=parsing.replaceFirst("str", "");
-					if (!(Character.isLetter(parsing.charAt(0)))) throw new RuntimeException("Variable name can't start with digits");
+					if (!(Character.isLetter(parsing.charAt(0)) || parsing.charAt(0)=='_')) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new StrVar(parsing));
 				}
 				else if (parsing.contains("vector")) {
