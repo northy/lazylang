@@ -157,8 +157,10 @@ public class Parser{
 						}
 						i++;
 					}
-					funcao.addParameter(tmp,functions);
-					tmpArray.add(tmp);
+					if (!tmp.equals("")) {
+						funcao.addParameter(tmp,functions);
+						tmpArray.add(tmp);
+					}
 
 					curString=curString.replace(curString.subSequence(0,i+1),"");
 					if (depth==1) curArray=tmpArray;
@@ -520,7 +522,7 @@ public class Parser{
 			}
 			else{
 				if (!(functions.get(function) instanceof Function)) throw new RuntimeException("Unknown function");
-				functions.get(function).run(parameters,functions);
+				return functions.get(function).run(parameters,functions);
 			}
 			return null;
 		}
@@ -582,7 +584,6 @@ public class Parser{
  				isString = true;
  			}
             else if (c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || c==',' || i==exp.length()-2) {
-								
 				if ((Parser.countStringOcurrences(parsing, "(") != Parser.countStringOcurrences(parsing, ")"))) {
 					//Same number of open and closed parenthesis
 					i++;

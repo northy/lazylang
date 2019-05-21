@@ -37,7 +37,7 @@ public class Function{
 		return this.parameters.size();
 	}
 
-	public void run(ArrayList<Var> pars,HashMap<String,Function> functions) throws RuntimeException {
+	public Var run(ArrayList<Var> pars,HashMap<String,Function> functions) throws RuntimeException {
 		scope = new HashMap<String,Var>(parameters);
 		ArrayList<Object> content = getContent();
 
@@ -52,9 +52,15 @@ public class Function{
 				p.parseBlock(Parser.objectToALObject(content.get(i)),scope,functions);
 			}
 			else {
-				Parser.evaluateStackByPriority(Parser.expressionStack((String)content.get(i),scope,functions),scope);
+				String value = content.get(i).toString();
+				if(value.startsWith("return")){
+					value = value.substring(6,value.length());
+					return Parser.evaluateStackByPriority(Parser.expressionStack(value,scope,functions),scope);
+				}
+				Parser.evaluateStackByPriority(Parser.expressionStack(value,scope,functions),scope);
 			}
 		}
+		return null;
 	}
 
 	public ArrayList<Object> getContent(){
