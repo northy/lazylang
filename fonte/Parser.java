@@ -1,3 +1,7 @@
+//Giovane Gonçalves da Silva
+<giovanegsilva@outlook.com>
+//Igor Andrey Ronsoni
+<igorandrey@yahoo.com.br>
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.ArrayList;
