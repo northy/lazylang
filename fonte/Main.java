@@ -9,6 +9,7 @@ class Main {
     public static void main(String[] args) {
         Parser p;
         HashMap<String,Var> vars = new HashMap<String,Var>();
+        HashMap<String,Function> functions = new HashMap<String,Function>();
         if (args.length>0) {
             p = new Parser(false);
             int cLine = 0;
@@ -28,7 +29,7 @@ class Main {
                 cLine++;
                 Main.curLine = "at line " + cLine;
                 try {
-                    p.parse(fileInput.nextLine(),vars);
+                    p.parse(fileInput.nextLine(),vars,functions);
                 }
                 catch (Exception e) {
                     System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
@@ -46,11 +47,12 @@ class Main {
                 line=s.nextLine();  
                 if (line.equals(":q")) break;
                 try {
-                    p.parse(line,vars);
+                    p.parse(line,vars,functions);
                 }
                 catch (Exception e) {
-                    p.curLine="";
+                    p.curString="";
                     System.out.println("ERROR " + Main.curLine + ": " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
             s.close();

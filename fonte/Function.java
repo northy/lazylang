@@ -4,7 +4,7 @@ import java.util.HashMap;
 public class Function{
 	private String nameOfFunction,type;
 	private HashMap<String,Var> parameters = new HashMap<String,Var>();
-	private HashMap<String,ArrayList<Object>> scope = new HashMap<String,ArrayList<Object>>();
+	private ArrayList<Object> scope = new ArrayList<Object>();
 
 	//Construtores	
 	public Function(){
@@ -23,32 +23,10 @@ public class Function{
 	}
 
 	public void setScope(ArrayList<Object> sco){
-		this.scope.put(this.getName(),sco);
+		this.scope = sco;
 	}
 
-	public void setParameters(String par){
-		if(par.equals("")){
-			this.parameters.put("",new StrVar());
-			return;
-		}
-
-		Parser p = new Parser(false); 
-		String variable = "";
-		par += ",";
-
-		
-		for(int i = 0; i < par.length(); i++){
-			
-			variable += par.charAt(i);
-
-			if(par.charAt(i) == ','){
-				variable = variable.substring(0,variable.length()-1);
-				variable += ";";
-				p.parse(variable,this.parameters);
-				variable = "";
-			}				
-		}
-	}
+	public void setParameters(String par){}
 
 	public Object returns(Object value){
 		return value;
@@ -62,7 +40,20 @@ public class Function{
 		return this.parameters.size();
 	}
 
-	public HashMap<String,ArrayList<Object>> getScope(){
+	public void run(HashMap<String,Function> functions) {
+		ArrayList<Object> scope = getScope();
+		for (int i=0; i<scope.size(); ++i) {
+			if (scope.get(i) instanceof ArrayList<?>) {
+				Parser p = new Parser(false);
+				p.parseBlock((ArrayList<Object>)scope.get(i),parameters,functions);
+			}
+			else {
+				Parser.evaluateStackByPriority(Parser.expressionStack((String)scope.get(i),parameters,functions),parameters);
+			}
+		}
+	}
+
+	public ArrayList<Object> getScope(){
 		return this.scope;
 	}
 
