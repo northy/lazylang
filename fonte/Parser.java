@@ -403,7 +403,12 @@ public class Parser{
 		//char
 		try{
 			if(value.charAt(0) == '\'' && value.charAt(value.length()-1) == '\''){
-				return new CharVar(value.charAt(1));
+				if(value.length()==3){
+					return new CharVar(value.charAt(1));
+				}
+				else if(value.length()==2){
+					return new CharVar(' ');
+				}
 			}
 		}
 		catch (Exception e) {}
@@ -550,11 +555,9 @@ public class Parser{
 				return Expression.evaluate(CastOperator.BOOL,parameters.get(0));
 			}
 			else if (function.equals("char")){
-				Character tmp;
-				String _tmp;
-				_tmp = parameters.get(0).toString();
-				tmp = _tmp.charAt(0);
-				return new CharVar((tmp));
+				String tmp;
+				tmp = parameters.get(0).toString();
+				return new CharVar((tmp.charAt(0)));
 			}
 			else if(function.equals("str")) {
 				return new StrVar("__tmp",parameters.get(0).toString());

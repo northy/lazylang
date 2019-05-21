@@ -11,13 +11,13 @@ public class CharVar extends Var {
         this.setName(name);
     }
 
-    public CharVar(String name,Character data) {
+    public CharVar(String name,char data) {
         this();
         this.setName(name);
         this.setData(data);
     }
 
-    public CharVar(Character data) {
+    public CharVar(char data) {
        this("__tmp",data);
     }
 
@@ -28,13 +28,13 @@ public class CharVar extends Var {
 	}
   
     //setters
-    public void setData(Character d) {
+    public void setData(char d) {
         this.data=d;
     }
 
     public void setData(Object d) throws OperatorException {
         try {
-            this.data=(Character)((Character) d).charValue();
+            this.data=((Character)d).charValue();
             return;
         }
         catch (Exception e) {
