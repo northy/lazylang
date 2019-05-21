@@ -220,7 +220,7 @@ public class Parser{
 			}
 		}
 		if(!(curString.equals("")) || curArray.size()!=0) Main.shellPrefix="...";
-		else Main.shellPrefix="Prelude>";
+		else Main.shellPrefix=Main.defaultShellPrefix;
 	}
 
 	public void parseBlock(ArrayList<Object> o, HashMap<String, Var> variables, HashMap<String, Function> functions) throws RuntimeException {
@@ -386,6 +386,118 @@ public class Parser{
 			}
 		}
 		catch (Exception e) {}
+
+		while (value.contains("(") && value.contains(")") && Character.isLetterOrDigit(value.charAt(value.indexOf('(')-1))) {
+			//x()
+			//is an while block to be closeable, but operates like an if block;
+			String name="", function="";
+			ArrayList<Var> parameters = new ArrayList<Var>();
+			int i=0;
+
+			while (value.charAt(i)!='(') {
+				function+=value.charAt(i);
+				i++;
+			}
+			if (countStringOcurrences(function, ".")>0) break;
+			i++;
+			while (i<value.length()) {
+				name+=value.charAt(i);
+				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(name, "(")==Parser.countStringOcurrences(name, ")"))) {
+					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables, functions), variables));
+					name="";
+					i++;
+				}
+				i++;
+			}
+
+			//functions from lazylang
+			Scanner s = new Scanner(System.in);
+			if (function.equals("print")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+			}
+			else if (function.equals("println")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				System.out.println();
+			}
+			else if (function.equals("input")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				StrVar r = new StrVar();
+				if (s.hasNextLine()) r.setData(s.nextLine());
+				s=null;
+				return r;
+			}
+			else if (function.equals("readInt")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				IntVar r = new IntVar();
+				if (s.hasNextLine()) r.setData(s.nextInt());
+				s=null;
+				return r;
+			}
+			else if (function.equals("readFloat")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				FloatVar r = new FloatVar();
+				if (s.hasNextLine()) r.setData(s.nextFloat());
+				s=null;
+				return r;
+			}
+			else if (function.equals("readBool")) {
+				for (i=0; i<parameters.size(); ++i) {
+					System.out.print(parameters.get(i).getData());
+					if (i!=parameters.size()-1) System.out.print(" ");
+				}
+				BoolVar r = new BoolVar();
+				if (s.hasNextLine()) r.setData(s.nextBoolean());
+				s=null;
+				return r;
+			}
+			else if (function.equals("int")) {
+				s=null;
+				return Expression.evaluate(CastOperator.INT,parameters.get(0));
+			}
+			else if (function.equals("float")) {
+				s=null;
+				return Expression.evaluate(CastOperator.FLOAT,parameters.get(0));
+			}
+			else if (function.equals("bool")) {
+				s=null;
+				return Expression.evaluate(CastOperator.BOOL,parameters.get(0));
+			}
+			else if (function.equals("char")){
+				Character tmp;
+				String _tmp;
+				_tmp = parameters.get(0).toString();
+				tmp = _tmp.charAt(0);
+				s=null;
+				return new CharVar((tmp));
+			}
+			else if(function.equals("str")) {
+				s=null;
+				return new StrVar("__tmp",parameters.get(0).toString());
+			}
+			else{
+				s=null;
+				if (!(functions.get(function) instanceof Function)) throw new RuntimeException("Unknown function");
+				return functions.get(function).run(parameters,functions);
+			}
+			s=null;
+			return null;
+		}
+
 		if (value.contains(".") && (Character.isLetterOrDigit(value.charAt(value.indexOf('.')-1)))) {
 			//x.y()
 			String name="", function="";
@@ -449,104 +561,6 @@ public class Parser{
 				}
 			}
 
-			return null;
-		}
-
-		if (value.contains("(") && value.contains(")") && Character.isLetterOrDigit(value.charAt(value.indexOf('(')-1))) {
-			//x()
-			String name="", function="";
-			ArrayList<Var> parameters = new ArrayList<Var>();
-			int i=0;
-
-			while (value.charAt(i)!='(') {
-				function+=value.charAt(i);
-				i++;
-			}
-			i++;
-			while (i<value.length() && value.charAt(i)!=')') {
-				name+=value.charAt(i);
-				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(value, "(")==Parser.countStringOcurrences(value, ")"))) {
-					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables, functions), variables));
-					name="";
-					i++;
-				}
-				i++;
-			}
-
-			//functions from lazylang
-			Scanner s = new Scanner(System.in);
-			if (function.equals("print")) {
-				for (i=0; i<parameters.size(); ++i) {
-					System.out.print(parameters.get(i).getData());
-					if (i!=parameters.size()-1) System.out.print(" ");
-				}
-			}
-			else if (function.equals("println")) {
-				for (i=0; i<parameters.size(); ++i) {
-					System.out.print(parameters.get(i).getData());
-					if (i!=parameters.size()-1) System.out.print(" ");
-				}
-				System.out.println();
-			}
-			else if (function.equals("input")) {
-				for (i=0; i<parameters.size(); ++i) {
-					System.out.print(parameters.get(i).getData());
-					if (i!=parameters.size()-1) System.out.print(" ");
-				}
-				StrVar r = new StrVar();
-				if (s.hasNextLine()) r.setData(s.nextLine());
-				return r;
-			}
-			else if (function.equals("readInt")) {
-				for (i=0; i<parameters.size(); ++i) {
-					System.out.print(parameters.get(i).getData());
-					if (i!=parameters.size()-1) System.out.print(" ");
-				}
-				IntVar r = new IntVar();
-				if (s.hasNextLine()) r.setData(s.nextInt());
-				return r;
-			}
-			else if (function.equals("readFloat")) {
-				for (i=0; i<parameters.size(); ++i) {
-					System.out.print(parameters.get(i).getData());
-					if (i!=parameters.size()-1) System.out.print(" ");
-				}
-				FloatVar r = new FloatVar();
-				if (s.hasNextLine()) r.setData(s.nextFloat());
-				return r;
-			}
-			else if (function.equals("readBool")) {
-				for (i=0; i<parameters.size(); ++i) {
-					System.out.print(parameters.get(i).getData());
-					if (i!=parameters.size()-1) System.out.print(" ");
-				}
-				BoolVar r = new BoolVar();
-				if (s.hasNextLine()) r.setData(s.nextBoolean());
-				return r;
-			}
-			else if (function.equals("int")) {
-				return Expression.evaluate(CastOperator.INT,parameters.get(0));
-			}
-			else if (function.equals("float")) {
-				return Expression.evaluate(CastOperator.FLOAT,parameters.get(0));
-			}
-			else if (function.equals("bool")) {
-				return Expression.evaluate(CastOperator.BOOL,parameters.get(0));
-			}
-			else if (function.equals("char")){
-				Character tmp;
-				String _tmp;
-				_tmp = parameters.get(0).toString();
-				tmp = _tmp.charAt(0);
-				return new CharVar((tmp));
-			}
-			else if(function.equals("str")) {
-				return new StrVar("__tmp",parameters.get(0).toString());
-			}
-			else{
-				if (!(functions.get(function) instanceof Function)) throw new RuntimeException("Unknown function");
-				return functions.get(function).run(parameters,functions);
-			}
 			return null;
 		}
 		

@@ -3,7 +3,8 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 class Main {
-    public static String shellPrefix = "Prelude>";
+    public static String defaultShellPrefix = ">>>";
+    public static String shellPrefix = new String(defaultShellPrefix);
     public static String curLine = "";
 
     public static void main(String[] args) {
