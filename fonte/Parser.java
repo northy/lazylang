@@ -4,13 +4,12 @@ import java.util.ArrayList;
 
 public class Parser{
 	//Atributos
-	String curString;
-	ArrayList<Object> curArray;
-	HashMap<String,Function> funcoes;
-	boolean shellMode,functionIsOpen;
-	int depth, lastIfResult;
-	Function funcao;
-	static int tempCount=0;
+	public String curString;
+	public ArrayList<Object> curArray;
+	private boolean shellMode,functionIsOpen;
+	private int depth, lastIfResult;
+	private Function funcao;
+	private static int tempCount=0;
 
 	//Construtor
 	public Parser() {
@@ -19,7 +18,6 @@ public class Parser{
 		depth=0;
 		curArray=new ArrayList<Object>();
 
-		funcoes = new HashMap<String,Function>();
 		functionIsOpen = false;
 		funcao = new Function();
 	}
@@ -31,22 +29,26 @@ public class Parser{
 	//Métodos
 	public ArrayList<Object> findBlockDepth(ArrayList<Object> start, int relativeHeight) {
 		for (int i=0; i<depth-relativeHeight; ++i)
-			start=((ArrayList<Object>)start.get(start.size()-1));
+			start=objectToALObject(start.get(start.size()-1));
 		return start;
 	}
 
-	public void parse(String str, HashMap<String,Var> variables) {
+	public void parse(String str, HashMap<String,Var> variables, HashMap<String,Function> functions) {
 		int i;
 		String tmp = "";
 		ArrayList<Object> tmpArray = new ArrayList<Object>();
 
-		str=str.replaceAll("\\s+(?=((\\[\\\"]|[^\\\"])*\"(\\[\\\"]|[^\\\"])*\")*(\\[\\\"]|[^\\\"])*$)", "");
-		str=str.trim();
+		str=removeWhitespacesOutsideString(str);
+		
 		for (char c : str.toCharArray()) {
 			if (c!=';' && c!='{' && c!='}') {
+				//keep reading
 				curString+=c;
 			}
 			else {
+				//evaluate the expression
+
+				//======block creation======
 				if (c==';' && curString.startsWith("for")) {
 					curString+=';';
 					continue;
@@ -134,7 +136,6 @@ public class Parser{
 				}
 				else if(curString.startsWith("function")){
 					functionIsOpen = true;
-					tmpArray.add("function");
 					depth++;
 					i=8;
 					while (curString.charAt(i) != '(') {
@@ -148,7 +149,7 @@ public class Parser{
 					i++;
 					while(curString.charAt(i) != ')'){
 						if(curString.charAt(i) == ','){
-							funcao.setParameters(tmp);
+							funcao.addParameter(tmp,functions);
 							tmpArray.add(tmp);
 							tmp = "";
 						}else{
@@ -156,7 +157,7 @@ public class Parser{
 						}
 						i++;
 					}
-					funcao.setParameters(tmp);
+					funcao.addParameter(tmp,functions);
 					tmpArray.add(tmp);
 
 					curString=curString.replace(curString.subSequence(0,i+1),"");
@@ -164,32 +165,35 @@ public class Parser{
 					else {
 						findBlockDepth(curArray,2).add(tmpArray);
 					}
-					funcoes.put(funcao.getName(),funcao);
+					functions.put(funcao.getName(),funcao);
 					tmpArray = new ArrayList<Object>();
 				}
+				//======block creation======
+
 				else if (depth!=0 && c==';') {
-					tmpArray=curArray;
-					for (i=0; i<depth-1; ++i) tmpArray=((ArrayList<Object>)tmpArray.get(tmpArray.size()-1));
-					tmpArray.add(curString);
-					findBlockDepth(curArray, 1);
+					//add an expression to block
+					findBlockDepth(curArray, 1).add(curString);
 					curString="";
 				}
 				else if (depth==1 && c=='}') {
 					if(functionIsOpen == true){
-						String name = curArray.get(1).toString();
-						curArray.remove(1);
-						funcao.setScope(curArray);
+						//finish creating a function
+						curArray.remove(0);
+						funcao.setContent(curArray);
 						functionIsOpen = false;
 						funcao = new Function();
-					}else{
-						this.parseBlock(curArray, variables);
+					}
+					else{
+						//execute the block
+						this.parseBlock(curArray, variables, functions);
 					}
 					curArray=new ArrayList<Object>();
 				}
 				else if (curArray.size()==0) {
+					//normal expression
 					lastIfResult=-1;
 					Var ret=null;
-                    ret = Parser.evaluateStackByPriority(Parser.expressionStack(curString,variables), variables);
+                    ret = Parser.evaluateStackByPriority(Parser.expressionStack(curString,variables,functions), variables);
                     if (this.shellMode && ret instanceof Var) System.out.println(ret.getData()); 
                     curString="";
 				}
@@ -200,11 +204,11 @@ public class Parser{
 		else Main.shellPrefix="Prelude>";
 	}
 
-	public void parseBlock(ArrayList<Object> o, HashMap<String, Var> variables) throws RuntimeException {
+	public void parseBlock(ArrayList<Object> o, HashMap<String, Var> variables, HashMap<String, Function> functions) throws RuntimeException {
 		Var v;
 
 		if (o.get(0).equals("if")) {
-			v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
+			v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables, functions),variables);
 			if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) {
 				lastIfResult=0;
 				return;
@@ -212,10 +216,10 @@ public class Parser{
 			lastIfResult=-1;
 			for (int i=2; i<o.size(); ++i) {
 				if (o.get(i) instanceof ArrayList<?>) {
-					parseBlock((ArrayList<Object>)o.get(i),variables);
+					parseBlock(objectToALObject(o.get(i)),variables, functions);
 				}
 				else {
-					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
 				}
 			}
 			lastIfResult=1;
@@ -223,7 +227,7 @@ public class Parser{
 		else if (o.get(0).equals("elif")) {
 			if (lastIfResult==-1) throw new RuntimeException("Don't use elif block without an if block");
 			if (lastIfResult==1) return;
-			v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
+			v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables, functions),variables);
 			if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) {
 				lastIfResult=0;
 				return;
@@ -231,10 +235,10 @@ public class Parser{
 			lastIfResult=-1;
 			for (int i=2; i<o.size(); ++i) {
 				if (o.get(i) instanceof ArrayList<?>) {
-					parseBlock((ArrayList<Object>)o.get(i),variables);
+					parseBlock(objectToALObject(o.get(i)),variables,functions);
 				}
 				else {
-					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
 				}
 			}
 			lastIfResult=1;
@@ -245,10 +249,10 @@ public class Parser{
 			lastIfResult=-1;
 			for (int i=1; i<o.size(); ++i) {
 				if (o.get(i) instanceof ArrayList<?>) {
-					parseBlock((ArrayList<Object>)o.get(i),variables);
+					parseBlock(objectToALObject(o.get(i)),variables,functions);
 				}
 				else {
-					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+					Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
 				}
 			}
 			lastIfResult=-1;
@@ -256,14 +260,14 @@ public class Parser{
 		else if (o.get(0).equals("while")) {
 			lastIfResult=-1;
 			for (;;) {
-				v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
+				v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables, functions),variables);
 				if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) break;
 				for (int i=2; i<o.size(); ++i) {
 					if (o.get(i) instanceof ArrayList<?>) {
-						parseBlock((ArrayList<Object>)o.get(i),variables);
+						parseBlock(objectToALObject(o.get(i)),variables,functions);
 					}
 					else {
-						Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+						Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
 					}
 				}
 			}
@@ -271,19 +275,19 @@ public class Parser{
 		else if (o.get(0).equals("for")) {
 			lastIfResult=-1;
 			if (o.size()<4) throw new RuntimeException("Insuficient arguments for 'for' block");
-			Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables),variables);
+			Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(1), variables,functions),variables);
 			for (;;) {
-				v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(2), variables),variables);
+				v = Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(2), variables, functions),variables);
 				if (!(((BoolVar)Expression.evaluate(CastOperator.BOOL, v)).getData())) break;
 				for (int i=4; i<o.size(); ++i) {
 					if (o.get(i) instanceof ArrayList<?>) {
-						parseBlock((ArrayList<Object>)o.get(i),variables);
+						parseBlock(objectToALObject(o.get(i)),variables,functions);
 					}
 					else {
-						Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables),variables);
+						Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(i), variables, functions),variables);
 					}
 				}
-				Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(3), variables),variables);
+				Parser.evaluateStackByPriority(Parser.expressionStack((String)o.get(3), variables, functions),variables);
 			}
 		}
 		else {
@@ -292,6 +296,12 @@ public class Parser{
 	}
 
 	//Métodos estáticos
+	public static String removeWhitespacesOutsideString(String str) {
+		str=str.replaceAll("\\s+(?=((\\[\\\"]|[^\\\"])*\"(\\[\\\"]|[^\\\"])*\")*(\\[\\\"]|[^\\\"])*$)", "");
+		str=str.trim();
+		return str;
+	}
+
 	public static int countStringOcurrences(String s, String f) {
 		return s.length()-s.replace(f, "").length();
 	}
@@ -329,7 +339,7 @@ public class Parser{
         return false;
 	}
 
-	public static Var toVar(String value, HashMap<String,Var> variables) throws RuntimeException {
+	public static Var toVar(String value, HashMap<String,Var> variables, HashMap<String,Function> functions) throws RuntimeException {
 		if (variables.get(value) instanceof Var) return variables.get(value);
 		try {
 			//int
@@ -369,7 +379,7 @@ public class Parser{
 				i++;
 			}
 			i++;
-			object=Parser.toVar(name,variables);
+			object=Parser.toVar(name,variables,functions);
 			name="";
 			while (value.charAt(i)!='(') {
 				function+=value.charAt(i);
@@ -379,7 +389,7 @@ public class Parser{
 			while (i<value.length() && value.charAt(i)!=')') {
 				name+=value.charAt(i);
 				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(value, "(")==Parser.countStringOcurrences(value, ")"))) {
-					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables), variables));
+					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables, functions), variables));
 					name="";
 					i++;
 				}
@@ -431,7 +441,7 @@ public class Parser{
 			while (i<value.length() && value.charAt(i)!=')') {
 				name+=value.charAt(i);
 				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(value, "(")==Parser.countStringOcurrences(value, ")"))) {
-					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables), variables));
+					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables, functions), variables));
 					name="";
 					i++;
 				}
@@ -439,78 +449,79 @@ public class Parser{
 			}
 
 			//functions from lazylang
+			Scanner s = new Scanner(System.in);
 			if (function.equals("print")) {
 				for (i=0; i<parameters.size(); ++i) {
 					System.out.print(parameters.get(i).getData());
 					if (i!=parameters.size()-1) System.out.print(" ");
 				}
 			}
-			if (function.equals("println")) {
+			else if (function.equals("println")) {
 				for (i=0; i<parameters.size(); ++i) {
 					System.out.print(parameters.get(i).getData());
 					if (i!=parameters.size()-1) System.out.print(" ");
 				}
 				System.out.println();
 			}
-			if (function.equals("input")) {
+			else if (function.equals("input")) {
 				for (i=0; i<parameters.size(); ++i) {
 					System.out.print(parameters.get(i).getData());
 					if (i!=parameters.size()-1) System.out.print(" ");
 				}
-				Scanner s = new Scanner(System.in);
 				StrVar r = new StrVar();
 				if (s.hasNextLine()) r.setData(s.nextLine());
 				return r;
 			}
-			if (function.equals("readInt")) {
+			else if (function.equals("readInt")) {
 				for (i=0; i<parameters.size(); ++i) {
 					System.out.print(parameters.get(i).getData());
 					if (i!=parameters.size()-1) System.out.print(" ");
 				}
-				Scanner s = new Scanner(System.in);
 				IntVar r = new IntVar();
 				if (s.hasNextLine()) r.setData(s.nextInt());
 				return r;
 			}
-			if (function.equals("readFloat")) {
+			else if (function.equals("readFloat")) {
 				for (i=0; i<parameters.size(); ++i) {
 					System.out.print(parameters.get(i).getData());
 					if (i!=parameters.size()-1) System.out.print(" ");
 				}
-				Scanner s = new Scanner(System.in);
 				FloatVar r = new FloatVar();
 				if (s.hasNextLine()) r.setData(s.nextFloat());
 				return r;
 			}
-			if (function.equals("readBool")) {
+			else if (function.equals("readBool")) {
 				for (i=0; i<parameters.size(); ++i) {
 					System.out.print(parameters.get(i).getData());
 					if (i!=parameters.size()-1) System.out.print(" ");
 				}
-				Scanner s = new Scanner(System.in);
 				BoolVar r = new BoolVar();
 				if (s.hasNextLine()) r.setData(s.nextBoolean());
 				return r;
 			}
-			if (function.equals("int")) {
+			else if (function.equals("int")) {
 				return Expression.evaluate(CastOperator.INT,parameters.get(0));
 			}
-			if (function.equals("float")) {
+			else if (function.equals("float")) {
 				return Expression.evaluate(CastOperator.FLOAT,parameters.get(0));
 			}
-			if (function.equals("bool")) {
+			else if (function.equals("bool")) {
 				return Expression.evaluate(CastOperator.BOOL,parameters.get(0));
 			}
-			if (function.equals("char")){
+			else if (function.equals("char")){
 				Character tmp;
 				String _tmp;
 				_tmp = parameters.get(0).toString();
 				tmp = _tmp.charAt(0);
 				return new CharVar((tmp));
 			}
-			if(function.equals("str")) {
+			else if(function.equals("str")) {
 				return new StrVar("__tmp",parameters.get(0).toString());
-			}			
+			}
+			else{
+				if (!(functions.get(function) instanceof Function)) throw new RuntimeException("Unknown function");
+				functions.get(function).run(parameters,functions);
+			}
 			return null;
 		}
 		
@@ -534,10 +545,14 @@ public class Parser{
 		throw new OperatorException("Unable to transform \"" + value + "\" to a variable");
 	}
 
-	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables) throws RuntimeException{
+	public static ArrayList<Object> objectToALObject(Object o) {
+		return (ArrayList<Object>)o;
+	}
+
+	public static ArrayList<Object> expressionStack(String exp, HashMap<String, Var> variables, HashMap<String,Function> functions) throws RuntimeException{
 		int i=0;
         Object operator;	 
-        exp+=" "; //Evitar NullPointerException
+        exp+=" "; //Avoid NullPointerException
         ArrayList<Object> stack = new ArrayList<Object>();
         String parsing="",type = "";
         char c,c1;
@@ -558,7 +573,7 @@ public class Parser{
           	//Verefica se é string
             if(isString){
             	if(c == '\"'){
-            		stack.add(Parser.toVar(parsing,variables));
+            		stack.add(Parser.toVar(parsing,variables, functions));
             		parsing = "";
             		isString = false;
             	}
@@ -573,9 +588,9 @@ public class Parser{
 					i++;
 					continue;
 				}
-
+				
 				if (i != exp.length() -2 && c != '(' && c != ')') parsing = parsing.substring(0, parsing.length()-1);
-				if (parsing.contains("(") && (parsing.indexOf("(") -1 < 0 || Character.isAlphabetic(parsing.charAt(parsing.indexOf("(") -1)))) {
+				if (parsing.contains("(") && (parsing.indexOf("(") -1 < 0 || !Character.isAlphabetic(parsing.charAt(parsing.indexOf("(") -1)))) {
 					//Evaluate parenthesis first;
 					String tmpName;
 					int j=parsing.indexOf('('), oldJ;
@@ -593,14 +608,14 @@ public class Parser{
 							if (oldJ-1>=0 && Character.isAlphabetic(parsing.charAt(oldJ-1))) continue;
 							else {
 								tmpName="__tmp"+tempCount++;
-								variables.put(tmpName, Parser.evaluateStackByPriority(Parser.expressionStack((String)parsing.subSequence(oldJ+1, j), variables), variables));
+								variables.put(tmpName, Parser.evaluateStackByPriority(Parser.expressionStack((String)parsing.subSequence(oldJ+1, j), variables, functions), variables));
 								StringBuffer buff = new StringBuffer(parsing).replace(oldJ, j+1,tmpName);
 								parsing=buff.toString();
 							}
 						}
 					}
 				}
-				//criação de variaveis
+				//variable creation
 				if (parsing.startsWith("int") && parsing.charAt(3) != '(') {
 					type = "int";
 					parsing=parsing.replaceFirst("int", "");
@@ -637,7 +652,7 @@ public class Parser{
 					variables.put(parsing, new Vector(parsing));
 				}
 
-				if (!parsing.equals("")) stack.add(Parser.toVar(parsing, variables));
+				if (!parsing.equals("")) stack.add(Parser.toVar(parsing, variables, functions));
                 if (c=='=' && c1=='=') {
                     operator=ComparisonOperator.EQ;
                     i++;
@@ -724,11 +739,12 @@ public class Parser{
             }
             i++;
         }
-		if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
+		//if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
         return stack;
 	}
 
 	public static Var evaluateStackByPriority(ArrayList<Object> stack, HashMap<String,Var> variables) throws RuntimeException {
+		if (stack.size()==0) return null;
 		int i=0;
 		ArrayList<Integer> lasti = new ArrayList<Integer>();
 		boolean rollback=false, debugging=false;
@@ -749,7 +765,6 @@ public class Parser{
 		}
 
 		while (stack.size() != 1 && i < stack.size()) {
-
 			if (rollback) {
 				i=lasti.get(lasti.size()-1);
 				lasti.remove(lasti.size()-1);
@@ -815,6 +830,7 @@ public class Parser{
 				if (lasti.size()!=0) rollback=true;
 				continue;
 			}
+			throw new RuntimeException("Syntax error");
 		}
 		return (Var)stack.get(0);
 	}

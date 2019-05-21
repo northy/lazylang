@@ -3,51 +3,26 @@ import java.util.HashMap;
 
 public class Function{
 	private String nameOfFunction,type;
-	private HashMap<String,Var> parameters = new HashMap<String,Var>();
-	private HashMap<String,ArrayList<Object>> scope = new HashMap<String,ArrayList<Object>>();
+	private HashMap<String,Var> parameters = new HashMap<String,Var>(), scope;
+	ArrayList<String> parametersNames = new ArrayList<String>();
+	private ArrayList<Object> content = new ArrayList<Object>();
 
 	//Construtores	
 	public Function(){
 		this.type = "function";
 	}
 
-	public Function(String name,String par,ArrayList<Object> scope){
-		this();
-		this.setName(name);
-		this.setScope(scope);
-		this.setParameters(par);
-	}
-
 	public void setName(String name){
 		this.nameOfFunction = name;
 	}
 
-	public void setScope(ArrayList<Object> sco){
-		this.scope.put(this.getName(),sco);
+	public void setContent(ArrayList<Object> con){
+		this.content = con;
 	}
 
-	public void setParameters(String par){
-		if(par.equals("")){
-			this.parameters.put("",new StrVar());
-			return;
-		}
-
-		Parser p = new Parser(false); 
-		String variable = "";
-		par += ",";
-
-		
-		for(int i = 0; i < par.length(); i++){
-			
-			variable += par.charAt(i);
-
-			if(par.charAt(i) == ','){
-				variable = variable.substring(0,variable.length()-1);
-				variable += ";";
-				p.parse(variable,this.parameters);
-				variable = "";
-			}				
-		}
+	public void addParameter(String par,HashMap<String,Function> functions){
+		Var ret = Parser.evaluateStackByPriority(Parser.expressionStack(par,parameters,functions),parameters);
+		parametersNames.add(ret.getName());
 	}
 
 	public Object returns(Object value){
@@ -62,8 +37,28 @@ public class Function{
 		return this.parameters.size();
 	}
 
-	public HashMap<String,ArrayList<Object>> getScope(){
-		return this.scope;
+	public void run(ArrayList<Var> pars,HashMap<String,Function> functions) throws RuntimeException {
+		scope = new HashMap<String,Var>(parameters);
+		ArrayList<Object> content = getContent();
+
+		for (int i=0; i<pars.size(); ++i) {
+			if (!(scope.get(parametersNames.get(i)).getType().equals(pars.get(i).getType()))) throw new RuntimeException("Invalid type for parameter");
+			scope.put(parametersNames.get(i),pars.get(i));
+		}
+
+		for (int i=getNumberOfParameters(); i<content.size(); ++i) {
+			if (content.get(i) instanceof ArrayList<?>) {
+				Parser p = new Parser(false);
+				p.parseBlock(Parser.objectToALObject(content.get(i)),scope,functions);
+			}
+			else {
+				Parser.evaluateStackByPriority(Parser.expressionStack((String)content.get(i),scope,functions),scope);
+			}
+		}
+	}
+
+	public ArrayList<Object> getContent(){
+		return this.content;
 	}
 
 	public String getName(){
