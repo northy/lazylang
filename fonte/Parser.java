@@ -252,6 +252,7 @@ public class Parser{
 					if (value.startsWith("return")){
 						value = value.substring(6,value.length());
 						lastIfResult=1;
+						if (value.equals("")) return new StrVar("","return");
 						return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 					}
 					if (value.startsWith("continue")) {
@@ -289,6 +290,7 @@ public class Parser{
 					if(value.startsWith("return")){
 						value = value.substring(6,value.length());
 						lastIfResult=1;
+						if (value.equals("")) return new StrVar("","return");
 						return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 					}
 					if (value.startsWith("continue")) {
@@ -321,6 +323,7 @@ public class Parser{
 					if(value.startsWith("return")){
 						value = value.substring(6,value.length());
 						lastIfResult=-1;
+						if (value.equals("")) return new StrVar("","return");
 						return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 					}
 					if (value.startsWith("continue")) {
@@ -364,6 +367,7 @@ public class Parser{
 						if(value.startsWith("return")){
 							value = value.substring(6,value.length());
 							lastIfResult=-1;
+							if (value.equals("")) return new StrVar("","return");
 							return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 						}
 						if (value.startsWith("continue")) {
@@ -408,6 +412,7 @@ public class Parser{
 						if(value.startsWith("return")){
 							value = value.substring(6,value.length());
 							lastIfResult=-1;
+							if (value.equals("")) return new StrVar("","return");
 							return Parser.evaluateStackByPriority(Parser.expressionStack(value, variables, functions),variables);
 						}
 						if (value.startsWith("continue")) {
@@ -475,7 +480,6 @@ public class Parser{
 
 	public static Var toVar(String value, HashMap<String,Var> variables, HashMap<String,Function> functions) throws RuntimeException {
 		if (variables.get(value) instanceof Var) return variables.get(value);
-
 		try {
 			//int
 			return new IntVar((int)Integer.valueOf(value));
@@ -513,7 +517,7 @@ public class Parser{
 			//is an while block to be closeable, but operates like an if block;
 			String name="", function="";
 			ArrayList<Var> parameters = new ArrayList<Var>();
-			int i=0;
+			int i=0,parCount=0;
 
 			while (value.charAt(i)!='(') {
 				function+=value.charAt(i);
@@ -521,9 +525,11 @@ public class Parser{
 			}
 			if (countStringOcurrences(function, ".")>0) break;
 			i++;
-			while (i<value.length()) {
+			while ((parCount!=0 && i<value.length()) || (i<value.length() && parCount==0 && value.charAt(i)!=')')) {
+				if (value.charAt(i)=='(') parCount++;
+				if (value.charAt(i)==')') parCount--;
 				name+=value.charAt(i);
-				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(name, "(")==Parser.countStringOcurrences(name, ")"))) {
+				if (parCount==0 && (value.charAt(i+1)==',' || value.charAt(i+1)==')')) {
 					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables, functions), variables));
 					name="";
 					i++;
@@ -622,7 +628,7 @@ public class Parser{
 			String name="", function="";
 			Var object;
 			ArrayList<Var> parameters = new ArrayList<Var>();
-			int i=0;
+			int i=0,parCount=0;
 
 			while (value.charAt(i)!='.') {
 				name+=value.charAt(i);
@@ -636,9 +642,11 @@ public class Parser{
 				i++;
 			}
 			i++;
-			while (i<value.length() && value.charAt(i)!=')') {
+			while ((parCount!=0 && i<value.length()) || (i<value.length() && parCount==0 && value.charAt(i)!=')')) {
+				if (value.charAt(i)=='(') parCount++;
+				if (value.charAt(i)==')') parCount--;
 				name+=value.charAt(i);
-				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(value, "(")==Parser.countStringOcurrences(value, ")"))) {
+				if (parCount==0 && (value.charAt(i+1)==',' || value.charAt(i+1)==')')) {
 					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables, functions), variables));
 					name="";
 					i++;
@@ -722,20 +730,24 @@ public class Parser{
         ArrayList<Object> stack = new ArrayList<Object>();
         String parsing="",type = "";
         char c,c1;
-		boolean isString = false;
-	
+		
+		if(exp.charAt(0) == '\"'){
+			stack.add(new StrVar("__tmp",exp.substring(1,exp.length()-2)));
+			exp="";
+		}
         while (i < exp.length()-1) {
            	parsing += exp.charAt(i);    
             operator = null;
             c = exp.charAt(i);
             c1 = exp.charAt(i +1);
-
+          	
             if (c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='!' || c=='|' || c=='&' || c=='-' || c=='+' || c=='*' || c=='/' || c=='%' || c==',' || i==exp.length()-2) {
 				if ((Parser.countStringOcurrences(parsing, "(") != Parser.countStringOcurrences(parsing, ")"))) {
 					//Same number of open and closed parenthesis
 					i++;
 					continue;
 				}
+
 				if (i != exp.length() -2 && c != '(' && c != ')') parsing = parsing.substring(0, parsing.length()-1);
 				if (parsing.contains("(") && (parsing.indexOf("(") -1 < 0 || Character.isLetterOrDigit(parsing.charAt(parsing.indexOf("(") -1)))) {
 					//Evaluate parenthesis first;
@@ -888,7 +900,7 @@ public class Parser{
             }
             i++;
         }
-		if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
+		//if (stack.size()==0) throw new RuntimeException("Stack size is 0, maybe there is no expression to evaluate?");
         return stack;
 	}
 
@@ -956,7 +968,7 @@ public class Parser{
 			}
 			//a+b
 			if (i < stack.size() && stack.get(i) instanceof Var && i +1 < stack.size() && stack.get(i +1) instanceof Enum && i +2 < stack.size() && stack.get(i +2) instanceof Var) {
-				
+
 				//a+b*c
 				if (i +3 < stack.size() && stack.get(i +3) instanceof Enum && i +4 < stack.size() && stack.get(i +4) instanceof Var) {
 					if (Expression.compareOperators(stack.get(i+1),stack.get(i+3))<0) {
@@ -981,6 +993,7 @@ public class Parser{
 			}
 			throw new RuntimeException("Syntax error");
 		}
+
 		return (Var)stack.get(0);
 	}
 }
