@@ -72,10 +72,8 @@ public class StrVar extends Var{
     //Retorna uma cópia da string
     @Override
     public StrVar copy() {
-        StrVar s = new StrVar(this.getName());
-        for (int i = 0;i<=(this.getData().length());i++) {
-            s.concat(""+this.getData().charAt(i));
-        }
+        String a = new String(this.getData());
+        StrVar s = new StrVar("__tmp",a);
         return s;
     }
 
