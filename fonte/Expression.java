@@ -167,7 +167,7 @@ public abstract class Expression {
                 throw new OperatorException("Unexpected operator");
         }
 
-        return null;
+        return term1;
     }
 
     public static Var evaluate(CastOperator op, Var term) throws OperatorException {
