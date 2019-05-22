@@ -517,7 +517,7 @@ public class Parser{
 			//is an while block to be closeable, but operates like an if block;
 			String name="", function="";
 			ArrayList<Var> parameters = new ArrayList<Var>();
-			int i=0;
+			int i=0,parCount=0;
 
 			while (value.charAt(i)!='(') {
 				function+=value.charAt(i);
@@ -525,9 +525,11 @@ public class Parser{
 			}
 			if (countStringOcurrences(function, ".")>0) break;
 			i++;
-			while (i<value.length()) {	
+			while ((parCount!=0 && i<value.length()) || (i<value.length() && parCount==0 && value.charAt(i)!=')')) {
+				if (value.charAt(i)=='(') parCount++;
+				if (value.charAt(i)==')') parCount--;
 				name+=value.charAt(i);
-				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(name, "(")==Parser.countStringOcurrences(name, ")"))) {
+				if (parCount==0 && (value.charAt(i+1)==',' || value.charAt(i+1)==')')) {
 					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables, functions), variables));
 					name="";
 					i++;
@@ -626,7 +628,7 @@ public class Parser{
 			String name="", function="";
 			Var object;
 			ArrayList<Var> parameters = new ArrayList<Var>();
-			int i=0;
+			int i=0,parCount=0;
 
 			while (value.charAt(i)!='.') {
 				name+=value.charAt(i);
@@ -640,9 +642,11 @@ public class Parser{
 				i++;
 			}
 			i++;
-			while (i<value.length() && value.charAt(i)!=')') {
+			while ((parCount!=0 && i<value.length()) || (i<value.length() && parCount==0 && value.charAt(i)!=')')) {
+				if (value.charAt(i)=='(') parCount++;
+				if (value.charAt(i)==')') parCount--;
 				name+=value.charAt(i);
-				if (value.charAt(i+1)==',' || (value.charAt(i+1)==')' && Parser.countStringOcurrences(value, "(")==Parser.countStringOcurrences(value, ")"))) {
+				if (parCount==0 && (value.charAt(i+1)==',' || value.charAt(i+1)==')')) {
 					parameters.add(Parser.evaluateStackByPriority(Parser.expressionStack(name, variables, functions), variables));
 					name="";
 					i++;
