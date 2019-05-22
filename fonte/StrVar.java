@@ -74,6 +74,7 @@ public class StrVar extends Var{
     public StrVar copy() {
         String a = new String(this.getData());
         StrVar s = new StrVar("__tmp",a);
+        
         return s;
     }
 
@@ -195,6 +196,12 @@ public class StrVar extends Var{
     //converte todos as maiúsculas para minúsculas
     public String toLower(){
         return this.getData().toLowerCase();
+    }
+    //retorna uma string do objeto
+    @Override
+    public String toString(){
+
+        return new String("\"" + this.getData() + "\"");
     }
 
     //converte todas as minúsculas para maiúsculas
