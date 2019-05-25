@@ -1,4 +1,0 @@
-Main-Class: Main
-Manifest-Version: 1.0
-Specification-Title: Lazylang Interpreter
-Specification-Version: 1.0

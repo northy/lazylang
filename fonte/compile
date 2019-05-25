@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-
-javac ArithmeticOperator.java AssignmentOperator.java BoolVar.java CastOperator.java CharVar.java ComparisonOperator.java Expression.java FloatVar.java Function.java IntVar.java LogicalOperator.java Main.java OperatorException.java Parser.java StrVar.java Var.java Vector.java -Xlint:unchecked
-jar cvmf Manifest.txt ../lazylang.jar ArithmeticOperator.class AssignmentOperator.class BoolVar.class CastOperator.class CharVar.class ComparisonOperator.class Expression.class 'Expression$1.class' FloatVar.class Function.class IntVar.class LogicalOperator.class Main.class OperatorException.class Parser.class StrVar.class Var.class Vector.class
