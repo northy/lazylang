@@ -125,7 +125,7 @@ Lazylang conta com operadores lógicos, aritiméticos e de cast.
 #### Operadores lógicos
 
 |Operador|Função|
-
+|----| :----|
 | ! | Não | 
 | && | E |
 | \|\|| Ou |
