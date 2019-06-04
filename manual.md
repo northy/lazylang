@@ -6,7 +6,7 @@ Bem vindo a documentação de Lazylang, um interpretador construído em Java par
 
 ##  Sintaxe
 
-A sintaxe de Lazylang foi herdada do Java, com blocos de código iniciando  com  "{" e terminando com "}", também as todas as funções devem estar entre parênteses, todo comando que não é função deve acabar com ";" , strings devem estar entre " ", e chars entre ' '.
+A sintaxe de Lazylang foi herdada do Java, com blocos de código iniciando  com  "{" e terminando com "}", também todas as funções devem ter seus parâmetros entre parênteses, todo comando que não inicie um novo bloco de código deve acabar com ";" , strings devem estar entre " ", e chars entre ' '.
 
 ## Tipos de dados
 
