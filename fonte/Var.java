@@ -32,7 +32,7 @@ public abstract class Var {
 
     public abstract int compareTo(Var other);
 
-    public boolean lAnd(Var other) throws OperatorException{
+    public boolean lAnd(Var other) throws OperatorException {
         boolean t=false, o=false, step=false;
 
         try {
@@ -66,7 +66,7 @@ public abstract class Var {
         return t&&o;
     }
 
-    public boolean lOr(Var other) throws OperatorException{
+    public boolean lOr(Var other) throws OperatorException {
         boolean t=false, o=false, step=false;
 
         try {
@@ -118,10 +118,13 @@ public abstract class Var {
     }
 
     public Var add(Var other) throws OperatorException {
-        if (this instanceof StrVar || other instanceof StrVar) {
+        if (this.getType().equals("str") || other.getType().equals("str")) {
             String a = this.getData().toString();
             String b = other.getData().toString();
             return new StrVar("__tmp", a+b);
+        }
+        if (this.getType().equals("vector") && other.getType().equals("vector")) {
+
         }
         double t, o;
         try {
@@ -147,7 +150,7 @@ public abstract class Var {
     }
     
     public Var mult(Var other) throws OperatorException {
-        if (this instanceof StrVar) {
+        if (this.getType().equals("str")) {
             String a = this.getData().toString();
             double b = ((Number)other.getData()).doubleValue();
             String c = "";
@@ -156,7 +159,7 @@ public abstract class Var {
             }
             return new StrVar("__tmp", c);
         }
-        if (other instanceof StrVar) {
+        if (other.getType().equals("str")) {
             String a = other.getData().toString();
             double b = ((Number)this.getData()).doubleValue();
             String c = "";

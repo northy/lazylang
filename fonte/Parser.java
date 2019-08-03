@@ -352,7 +352,7 @@ public class Parser{
 						Var r = parseBlock(objectToALObject(o.get(i)),variables, functions);
 						if (r instanceof Var) {
 							lastIfResult=-1;
-							if (r instanceof StrVar && r.getName().equals("")) {
+							if (r.getType().equals("str") && r.getName().equals("")) {
 								if (r.getData().equals("continue")) {
 									break;
 								}
@@ -397,7 +397,7 @@ public class Parser{
 						Var r = parseBlock(objectToALObject(o.get(i)),variables, functions);
 						if (r instanceof Var) {
 							lastIfResult=-1;
-							if (r instanceof StrVar && r.getName().equals("")) {
+							if (r.getType().equals("str") && r.getName().equals("")) {
 								if (r.getData().equals("continue")) {
 									break;
 								}
@@ -660,36 +660,86 @@ public class Parser{
 			}
 
 			//vector.x()
-			if (object instanceof Vector) {
+			if (object.getType().equals("vector")) {
 				if (function.equals("get")) {
-					return ((Vector)object).get(((IntVar)parameters.get(0)).getData());
+					try {
+						return ((Vector)object).get((int)parameters.get(0).getData());
+					} catch (Exception e) {}
+					try {
+						return ((AutoVar)object).get((int)parameters.get(0).getData());
+					} catch (Exception e) {}
 				}
 				if (function.equals("size")) {
-					return ((Vector)object).size();
+					try {
+						return ((Vector)object).size();
+					} catch (Exception e) {}
+					try {
+						return ((AutoVar)object).size();
+					} catch (Exception e) {}
 				}
 				if (function.equals("append")) {
-					((Vector)object).append((Var)parameters.get(0));
+					try {
+						((Vector)object).append((Var)parameters.get(0));
+					} catch (Exception e) {}
+					try {
+						((AutoVar)object).append((Var)parameters.get(0));
+					} catch (Exception e) {}
 				}
 				if (function.equals("appendPointer")) {
-					((Vector)object).appendPointer((Var)parameters.get(0));
+					try {
+						((Vector)object).appendPointer((Var)parameters.get(0));
+					} catch (Exception e) {}
+					try {
+						((AutoVar)object).appendPointer((Var)parameters.get(0));
+					} catch (Exception e) {}
 				}
 				if (function.equals("pop") && parameters.size()==0) {
-					return ((Vector)object).pop();
+					try {
+						return ((Vector)object).pop();
+					} catch (Exception e) {}
+					try {
+						return ((AutoVar)object).pop();
+					} catch (Exception e) {}
 				}
 				else if (function.equals("pop")) {
-					return ((Vector)object).pop(((IntVar)parameters.get(0)).getData());
+					try {
+						return ((Vector)object).pop((int)parameters.get(0).getData());
+					} catch (Exception e) {}
+					try {
+						return ((AutoVar)object).pop((int)parameters.get(0).getData());
+					} catch (Exception e) {}
 				}
 				if (function.equals("clear")) {
-					((Vector)object).clear();
+					try {
+						((Vector)object).clear();
+					} catch (Exception e) {}
+					try {
+						((AutoVar)object).clear();
+					} catch (Exception e) {}
 				}
 				if (function.equals("copy")) {
-					return ((Vector)object).copy();
+					try {
+						return ((Vector)object).copy();
+					} catch (Exception e) {}
+					try {
+						return ((AutoVar)object).copy();
+					} catch (Exception e) {}
 				}
 				if (function.equals("insert")) {
-					((Vector)object).insert(((IntVar)parameters.get(0)).getData(), (Var)parameters.get(1));
+					try {
+						((Vector)object).insert((int)parameters.get(0).getData(), (Var)parameters.get(1));
+					} catch (Exception e) {}
+					try {
+						((AutoVar)object).insert((int)parameters.get(0).getData(), (Var)parameters.get(1));
+					} catch (Exception e) {}
 				}
 				if (function.equals("count")) {
-					return ((Vector)object).countOccurrences((Var)parameters.get(0));
+					try {
+						return ((Vector)object).countOccurrences((Var)parameters.get(0));
+					} catch (Exception e) {}
+					try {
+						return ((AutoVar)object).countOccurrences((Var)parameters.get(0));
+					} catch (Exception e) {}
 				}
 			}
 
@@ -713,7 +763,12 @@ public class Parser{
 			}
 			Var v = evaluateStackByPriority(expressionStack(index, variables, functions),variables);
 			tmpName="__tmp"+tempCount++;
-			variables.put(tmpName, ((Vector)variables.get(name)).get(((IntVar)v).getData()));
+			try {
+				variables.put(tmpName, ((Vector)variables.get(name)).get((int)v.getData()));
+			} catch (Exception e) {}
+			try {
+				variables.put(tmpName, ((AutoVar)variables.get(name)).get((int)v.getData()));
+			} catch (Exception e) {}
 			value=value.replace(value.subSequence(0, j+1),tmpName);
 			if (!(value.contains("[") && value.contains("]") && Character.isLetterOrDigit(value.charAt(value.indexOf('[')-1)))) {
 				if (!(variables.get(value) instanceof Var)) throw new RuntimeException("Unexpected error parsing parenthesis index");
@@ -795,6 +850,12 @@ public class Parser{
 					parsing=parsing.replaceFirst("float", "");
 					if (!(Character.isLetter(parsing.charAt(0)) || parsing.charAt(0)=='_')) throw new RuntimeException("Variable name can't start with digits");
 					variables.put(parsing, new FloatVar(parsing));
+				}
+				else if (parsing.startsWith("auto") && parsing.charAt(4) != '(') {
+					type = "auto";
+					parsing=parsing.replaceFirst("auto", "");
+					if (!(Character.isLetter(parsing.charAt(0)) || parsing.charAt(0)=='_')) throw new RuntimeException("Variable name can't start with digits");
+					variables.put(parsing, new AutoVar(parsing));
 				}
 				else if (parsing.startsWith("bool") && parsing.charAt(4) != '(') {
 					type = "bool";

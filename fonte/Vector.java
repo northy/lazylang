@@ -48,6 +48,29 @@ public class Vector extends Var {
         }
 	}
 
+	@SuppressWarnings("unchecked")
+	public void concat(Var x) throws RuntimeException {
+		if (x.getType().equals("vector")) {
+			this.getData().addAll((ArrayList<Var>)x.getData());
+		}
+		else {
+			throw new RuntimeException("Unsupported types for concat");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public Vector concatNew(Var x) throws RuntimeException {
+		Vector v = new Vector();
+		if (x.getType().equals("vector")) {
+			v.getData().addAll((ArrayList<Var>)this.getData());
+			v.getData().addAll((ArrayList<Var>)x.getData());
+		}
+		else {
+			throw new RuntimeException("Unsupported types for concat");
+		}
+		return v;
+	}
+
 	public void append(Var x) {
 		this.getData().add(x.copy());
 	}
