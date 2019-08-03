@@ -1,5 +1,7 @@
 //Giovane Gonçalves da Silva <giovanegsilva@outlook.com>
 
+package fonte;
+
 public class StrVar extends Var{
 	protected String data;
 
@@ -242,29 +244,21 @@ public class StrVar extends Var{
     
     //retorna o valor string de um valor double
     public String valueOfDouble(double n){
-        String nValue = new String();
-        nValue.valueOf(n);
-        return nValue;
+        return String.valueOf(n);
     }
 
     //retorna o valor string de um valor float
     public String valueOfFloat(float n){
-        String nValue = new String();
-        nValue.valueOf(n);
-        return nValue;
+        return String.valueOf(n);
     }
 
     //retorna o valor string de um valor inteiro
     public String valueOfInt(int n){        
-        String nValue = new String();
-        nValue.valueOf(n);
-        return nValue;
+        return String.valueOf(n);
     }
 
     //retorna o valor string de um objeto
     public String valueOfObject(Var o){
-        String nValue = new String();
-        nValue.valueOf(o);
-        return nValue;
+        return String.valueOf(o);
     }
 }

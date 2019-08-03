@@ -1,5 +1,7 @@
 //Alexsandro Thomas <alexsandrogthomas@gmail.com>
 
+package fonte;
+
 public enum LogicalOperator {
     AND, //If both the operands are true then condition becomes true (&&)
     OR, //If any of the two operands are non-zero then condition becomes true (||)

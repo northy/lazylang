@@ -1,5 +1,7 @@
 //Alexsandro Thomas <alexsandrogthomas@gmail.com>
 
+package fonte;
+
 import java.util.ArrayList;
 
 public class Vector extends Var {
@@ -27,6 +29,7 @@ public class Vector extends Var {
         this.data=d;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setData(Object d) throws OperatorException {
 		try {

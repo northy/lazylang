@@ -1,5 +1,7 @@
 //Giovane Gonçalves da Silva <giovanegsilva@outlook.com>
 
+package fonte;
+
 public class CharVar extends Var {
     protected char data;
 

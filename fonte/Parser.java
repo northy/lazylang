@@ -2,6 +2,8 @@
 //Giovane Gonçalves da Silva <giovanegsilva@outlook.com>
 //Igor Andrey Ronsoni <igorandrey@yahoo.com.br>
 
+package fonte;
+
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -592,6 +594,9 @@ public class Parser{
 				s=null;
 				return r;
 			}
+			else if (function.equals("exit")) {
+				System.exit(parameters.size()==0 ? 0 : (int)parameters.get(0).getData());
+			}
 			else if (function.equals("int")) {
 				s=null;
 				return Expression.evaluate(CastOperator.INT,parameters.get(0));
@@ -719,6 +724,7 @@ public class Parser{
 		throw new OperatorException("Unable to transform \"" + value + "\" to a variable");
 	}
 
+	@SuppressWarnings("unchecked")
 	public static ArrayList<Object> objectToALObject(Object o) {
 		return (ArrayList<Object>)o;
 	}

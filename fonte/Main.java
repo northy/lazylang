@@ -1,5 +1,7 @@
 //Alexsandro Thomas <alexsandrogthomas@gmail.com>
 
+package fonte;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Scanner;

@@ -1,5 +1,7 @@
 //Alexsandro Thomas <alexsandrogthomas@gmail.com>
 
+package fonte;
+
 public enum ComparisonOperator {
     EQ, //EQUALS
     GT, //GREATER THAN

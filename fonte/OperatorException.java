@@ -1,5 +1,7 @@
 //Alexsandro Thomas <alexsandrogthomas@gmail.com>
 
+package fonte;
+
 public class OperatorException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 

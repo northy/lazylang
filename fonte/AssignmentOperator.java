@@ -1,5 +1,7 @@
 //Alexsandro Thomas <alexsandrogthomas@gmail.com>
 
+package fonte;
+
 public enum AssignmentOperator {
     ASSIGN, //Assigns values from right side operands to left side operand (=)
     ADD_ASSIGN, //Equivalent to c = c + a (+=)
