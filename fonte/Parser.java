@@ -1014,7 +1014,7 @@ public class Parser{
 			}
 
 			//a,b
-			if(i < stack.size() -1 && !isOperator(stack.get(i +1)) || i > 0 && !isOperator(stack.get(i -1)) && i == stack.size() -1){
+			if(i<stack.size() && stack.get(i) instanceof Var && (i < stack.size() -1 && !isOperator(stack.get(i + 1)) || i > 0 && !isOperator(stack.get(i - 1)) && i == stack.size() -1)) {
 				stack.remove(i);
 				i = 0;
 				continue;
