@@ -1,12 +1,9 @@
-<img src="https://i.imgur.com/iuB0lSl.png]" alt="drawing" width="200"/>
+<img src="assets/lazylang.png" alt="drawing" width="200"/>
+
+[Português👈](README-pt_BR.md)
+[Manual👈](docs/manual.md)
 
 # Lazylang
 
-*Lazylang é uma linguagem de programação interpretada, possuindo sintaxe semelhante a do Java, linguagem na qual foi desenvolvida.*
-*Lazylang foi desenvolvida com o propósito de ser uma linguagem simples, porém funcional!*
-
-# Contribuidores
-
-Alexsandro Guilherme Thomas
-Giovane Gonçalves da Silva
-Igor Andrey Ronsoni
+*Lazylang is an interpreted programming language, with Java-like syntax, language which it was developed from.*
+*Lazylang was developed with the intent of being a simple but working language!*

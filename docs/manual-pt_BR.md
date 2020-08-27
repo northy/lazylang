@@ -1,4 +1,4 @@
-<img src="https://i.imgur.com/iuB0lSl.png]" alt="drawing" width="200"/>
+<img src="../assets/lazylang.png" alt="drawing" width="200"/>
 
 # **Lazylang**
 
@@ -10,7 +10,12 @@ A sintaxe de Lazylang foi herdada do Java, com blocos de código iniciando  com 
 
 ## Tipos de dados
 
-A linguagem conta com 6 tipos de dados, sendo eles: inteiro(int), números com ponto flutuante(float), booleano(bool), vetor(vector), string(str) e caractere(char), que devem ser usados na declaração de variáveis.
+A linguagem conta com 6 tipos de dados e um pseudo tipo de dado, sendo eles: inteiro(int), números com ponto flutuante(float), booleano(bool), vetor(vector), string(str), caractere(char) e automático (auto), que devem ser usados na declaração de variáveis.
+
+### Automático
+Esta definição de tipo de dado tentará deduzir qual o tipo desejado pelo usuário.
+
+    auto variavel;
 
 ### Inteiros
 São os números positivos e negativos sem vírgula, e devem ser declarados da seguinte forma:
@@ -78,13 +83,13 @@ Remove todos os elementos do vetor:
      v.clear();
 
 #### Insert
-Adiciona um elemento em uma posição específica, o elemento a ser inserido é o primeiro parâmetro, e a posição é o segundo:
+Adiciona um elemento em uma posição específica, a posição é o primeiro parâmetro, e o elemento a ser inserido é o segundo parâmetro:
 
      v.insert(2,"abc");
 
 #### Count
 
-Percorre o vetor contando as ocorrências de um regex passado como parãmetro:
+Percorre o vetor contando as ocorrências de um elemento passado como parâmetro:
 
      v.count(2);
 
@@ -261,16 +266,6 @@ Escreve na tela o que for passado como parâmetro, seja o parametro int, float, 
 ou
 
     print("Mensagem");
-
-##### *Println*
-
-Escreve na tela como o print, a diferença entre eles é que o println quebra linha ao final do comando, possui o seguinte formato:
-
-    println(variable);
-
-ou
-
-    println("Mensagem");
 
 ##### *Println*
 
